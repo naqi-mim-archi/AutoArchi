@@ -1,5 +1,5 @@
 {
   "functions": {
-    "api/[...catchall].ts": { "maxDuration": 60 }
+    "api/**": { "maxDuration": 60 }
   }
 }
