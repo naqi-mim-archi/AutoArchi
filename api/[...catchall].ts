@@ -19,7 +19,11 @@ const dispatchGemini = async (req: VercelRequest, res: VercelResponse) => {
   }
   try {
     const { model, contents, config } = req.body || {};
-    const ai = new GoogleGenAI({ apiKey });
+    // Explicit vertexai: false — without it, the SDK falls back to
+    // process.env.GOOGLE_GENAI_USE_VERTEXAI, which Vertex-backed flows sharing this
+    // process (text4d-j, ai-render, auto-plan) set to 'true' as a side effect. Without
+    // this override, this plain-API-key client silently gets hijacked into Vertex mode.
+    const ai = new GoogleGenAI({ apiKey, vertexai: false });
     const result = await ai.models.generateContent({ model, contents, config });
     res.status(200).json({ text: result.text });
   } catch (error: any) {

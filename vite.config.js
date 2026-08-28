@@ -259,7 +259,8 @@ export default defineConfig(({ mode }) => {
                 apiResponse.status(503).json({ error: 'GEMINI_API_KEY is not configured on the server.' });
               } else {
                 const { model, contents, config } = body || {};
-                const ai = new GoogleGenAI({ apiKey });
+                // Explicit vertexai: false — see api/[...catchall].ts for why this matters.
+                const ai = new GoogleGenAI({ apiKey, vertexai: false });
                 const result = await ai.models.generateContent({ model, contents, config });
                 apiResponse.json({ text: result.text });
               }
