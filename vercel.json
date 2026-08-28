@@ -1,15 +1,5 @@
 {
   "functions": {
-    "api/ai-render/**": { "maxDuration": 60 },
-    "api/exports/revit/**": { "maxDuration": 30 },
-    "api/imports/aps-revit/**": { "maxDuration": 30 },
-    "api/text2plan/**": { "maxDuration": 30 },
-    "api/text4d/**": { "maxDuration": 30 },
-    "api/text4e/**": { "maxDuration": 30 },
-    "api/text4f/**": { "maxDuration": 30 },
-    "api/text4g/**": { "maxDuration": 30 },
-    "api/text4h/**": { "maxDuration": 30 },
-    "api/text4j/**": { "maxDuration": 30 },
-    "api/auto-plan/**": { "maxDuration": 60 }
+    "api/[...catchall].ts": { "maxDuration": 60 }
   }
 }
