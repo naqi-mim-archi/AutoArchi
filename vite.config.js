@@ -1,9 +1,14 @@
 import { defineConfig, loadEnv } from 'vite';
+import { GoogleGenAI } from '@google/genai';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
+  // Dev-only convenience: the server-side backend modules below (loaded via
+  // ssrLoadModule) read secrets from process.env, but Vite's loadEnv() only returns
+  // them into this local `env` object — it doesn't populate process.env itself. Mirror
+  // everything from .env/.env.local into process.env so those modules can see it.
   for (const [key, value] of Object.entries(env)) {
-    if (key.startsWith('APS_') && value && !process.env[key]) process.env[key] = value;
+    if (value && !process.env[key]) process.env[key] = value;
   }
   const buildTimestamp = new Date().toLocaleString('en-GB', {
     year: 'numeric',
@@ -137,7 +142,8 @@ export default defineConfig(({ mode }) => {
           const isText4jRequest = request.url?.startsWith('/api/text4j');
           const isSmartText2PlanRequest = request.url?.startsWith('/api/smart-text2plan');
           const isAiRenderRequest = request.url?.startsWith('/api/ai-render');
-          if (!isRevitExportRequest && !isApsRevitImportRequest && !isAutoPlanRequest && !isText2PlanRequest && !isText4dRequest && !isText4eRequest && !isText4fRequest && !isText4gRequest && !isText4hRequest && !isText4jRequest && !isSmartText2PlanRequest && !isAiRenderRequest) {
+          const isGeminiProxyRequest = request.url?.startsWith('/api/gemini/generateContent');
+          if (!isRevitExportRequest && !isApsRevitImportRequest && !isAutoPlanRequest && !isText2PlanRequest && !isText4dRequest && !isText4eRequest && !isText4fRequest && !isText4gRequest && !isText4hRequest && !isText4jRequest && !isSmartText2PlanRequest && !isAiRenderRequest && !isGeminiProxyRequest) {
             next();
             return;
           }
@@ -247,6 +253,17 @@ export default defineConfig(({ mode }) => {
                 url: request.url,
                 body,
               }, apiResponse);
+            } else if (isGeminiProxyRequest) {
+              const apiKey = process.env.GEMINI_API_KEY || '';
+              if (!apiKey) {
+                apiResponse.status(503).json({ error: 'GEMINI_API_KEY is not configured on the server.' });
+              } else {
+                const { model, contents, config } = body || {};
+                const ai = new GoogleGenAI({ apiKey });
+                const result = await ai.models.generateContent({ model, contents, config });
+                apiResponse.json({ text: result.text });
+              }
+              handled = true;
             }
             if (!handled && !response.writableEnded) next();
           } catch (error) {
