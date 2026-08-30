@@ -122,12 +122,12 @@ export async function convertFloorplanImage4j(
   // warm. This remains best-effort and does not change the extractor itself.
   if (options.warmOcr !== false) void warmLocalFloorplanOcr4j();
 
-  console.log('[Text 4.0 J] Step 2: Running Structured3D and the unchanged J-local baseline in parallel');
+  console.log('[Text 4.0 J] Step 2: Running Roboflow and the unchanged J-local baseline in parallel');
   const structuredStartedAt = Date.now();
   const extractionStartedAt = Date.now();
   const structuredTask = requestText4jStructuredGeometry(base64Image).then(structuredGeometry => {
     options.onStructuredReady?.(structuredGeometry);
-    console.log(`[Text 4.0 J] Structured3D returned ${structuredGeometry.walls.length} wall-face candidates in ${Date.now() - structuredStartedAt}ms (service ${structuredGeometry.processingMs}ms)`);
+    console.log(`[Text 4.0 J] Roboflow returned ${structuredGeometry.walls.length} wall-centerline candidates in ${Date.now() - structuredStartedAt}ms (service ${structuredGeometry.processingMs}ms)`);
     return structuredGeometry;
   });
   const localTask = extractGeometryFromLocalImage(base64Image, {
@@ -148,7 +148,6 @@ export async function convertFloorplanImage4j(
         : undefined,
     });
   const [structuredResult, localResult] = await Promise.allSettled([structuredTask, localTask]);
-  if (structuredResult.status === 'rejected') throw structuredResult.reason;
 
   let rawGeometry: GeneratedData;
   if (localResult.status === 'rejected') {
@@ -167,12 +166,46 @@ export async function convertFloorplanImage4j(
           `Full curvilinear/hybrid extraction reported: ${error instanceof Error ? error.message : String(error || 'unknown raster topology')}`,
         ];
       }
-    } else throw new Error(`Text 4.0 J hybrid refinement failed after Structured3D geometry: ${error instanceof Error ? error.message : String(error)}`);
-  } else {
-    console.log('[Text 4.0 J] Step 3: Reconciling paired Structured3D wall faces over the unchanged Local baseline');
+    } else throw new Error(`Text 4.0 J hybrid refinement failed after Roboflow geometry: ${error instanceof Error ? error.message : String(error)}`);
+  } else if (structuredResult.status === 'fulfilled') {
+    console.log('[Text 4.0 J] Step 3: Reconciling Roboflow wall centerlines over the unchanged Local baseline');
     const reconciled = await reconcileText4jStructuredGeometry(base64Image, localResult.value, structuredResult.value);
     rawGeometry = reconciled.data;
-    console.log(`[Text 4.0 J] Geometry reconciliation kept ${reconciled.audit.acceptedRepairs} repairs from ${reconciled.audit.pairedCenterlines} paired centerline candidates; ${reconciled.audit.rejectedOverlap} overlap and ${reconciled.audit.rejectedLengthBudget} length-budget candidates were rejected individually.`);
+    console.log(`[Text 4.0 J] Geometry reconciliation kept ${reconciled.audit.acceptedRepairs} repairs from ${reconciled.audit.pairedCenterlines} candidates.`);
+  } else {
+    // Roboflow failed but the Local baseline succeeded — degrade gracefully to
+    // Local-only geometry instead of failing the whole conversion.
+    rawGeometry = localResult.value;
+    if (rawGeometry.extractionDiagnostics) {
+      const failure = structuredResult.reason instanceof Error ? structuredResult.reason.message : String(structuredResult.reason);
+      const baselineWalls = rawGeometry.walls?.length || 0;
+      rawGeometry.extractionDiagnostics.warnings = [
+        `Roboflow wall contribution unavailable; retained complete Local geometry: ${failure}`,
+        ...rawGeometry.extractionDiagnostics.warnings,
+      ];
+      rawGeometry.extractionDiagnostics.structuredReconciliation = {
+        provider: 'Roboflow',
+        mode: 'local-primary',
+        baselineWalls,
+        structuredFaces: 0,
+        pairedCenterlines: 0,
+        straightCandidates: 0,
+        curvedCandidates: 0,
+        providerComplete: false,
+        selectionReason: `Local Fallback: Roboflow request failed (${failure}).`,
+        acceptedRepairs: 0,
+        retainedLocalApertureHosts: 0,
+        rejectedUnpaired: 0,
+        rejectedUnsupported: 0,
+        rejectedModeConflict: 0,
+        rejectedExistingWall: 0,
+        rejectedConnectivity: 0,
+        rejectedOverlap: 0,
+        rejectedLengthBudget: 0,
+        finalWalls: baselineWalls,
+        unavailable: true,
+      };
+    }
   }
   console.log(`[Text 4.0 J] Local extraction completed in ${Date.now() - extractionStartedAt}ms; total workflow ${Date.now() - workflowStartedAt}ms`);
 

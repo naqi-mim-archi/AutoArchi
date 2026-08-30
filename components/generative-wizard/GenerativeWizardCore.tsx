@@ -432,7 +432,7 @@ const text4jStructuredPreviewData = (
       evidence: {
         source: 'raster',
         confidence: wall.confidence,
-        notes: ['Structured3D wall candidate; semantic type and metric scale are intentionally provisional.'],
+        notes: ['Roboflow wall candidate; semantic type and metric scale are intentionally provisional.'],
       },
     })),
     doors: [], windows: [], openings: [], rooms: [], columns: [], stairs: [], slabs: [], railings: [], furniture: [], fixtures: [],
@@ -442,7 +442,7 @@ const text4jStructuredPreviewData = (
       canImport: false,
       processing: true,
       scaleSource: 'default',
-      warnings: ['Structured3D candidate geometry only. Local scale, cleanup, curves, and architectural details are still processing.'],
+      warnings: ['Roboflow candidate geometry only. Local scale, cleanup, curves, and architectural details are still processing.'],
       detectedRoomLabels: 0,
       requestedRoomLabels: 0,
     },
@@ -2643,7 +2643,7 @@ const GenerativeWizard: React.FC<GenerativeWizardProps> = ({
     summary: string,
   ) => {
     const initialResults: Text4jComparisonResults = {
-      master: { key: 'master', label: 'Structured3D Geometry', status: 'pending' },
+      master: { key: 'master', label: 'Roboflow Wall Geometry', status: 'pending' },
       local: { key: 'local', label: 'J Hybrid Final', status: 'pending' },
     };
     setText4jComparisonResults(initialResults);
@@ -2666,7 +2666,7 @@ const GenerativeWizard: React.FC<GenerativeWizardProps> = ({
             ...(previous || initialResults),
             master: {
               key: 'master',
-              label: `Structured3D Geometry (${structured.walls.length} walls)`,
+              label: `Roboflow Wall Geometry (${structured.walls.length} walls)`,
               status: 'done',
               durationMs: performance.now() - startedAt,
               data: text4jStructuredPreviewData(structured, base64Image),
@@ -2695,7 +2695,7 @@ const GenerativeWizard: React.FC<GenerativeWizardProps> = ({
         return {
           ...current,
           master: current.master.status === 'pending'
-            ? { key: 'master', label: 'Structured3D Geometry', status: 'error', durationMs: performance.now() - startedAt, error: message }
+            ? { key: 'master', label: 'Roboflow Wall Geometry', status: 'error', durationMs: performance.now() - startedAt, error: message }
             : current.master,
           local: { key: 'local', label: 'J Hybrid Final', status: 'error', durationMs: performance.now() - startedAt, error: message },
         };
@@ -4149,7 +4149,7 @@ STRICT GENERATION RULES:
                   {isAutoScanFlashMode || isAutoPlanGenerationMode
                     ? <CompositedProcessingSpinner size={24} strokeWidth={3} />
                     : <Loader2 size={24} className="animate-spin" />}
-                  <div className="text-xs font-bold">{isAutoScanFlashMode ? (key === 'local' ? 'Digitizing uploaded image...' : 'Generating and digitizing standardized image...') : isAutoPlanGenerationMode ? `Generating and digitizing variant ${key === 'master' ? '1' : '2'}...` : isText4jMode ? 'Fetching Structured3D geometry...' : 'Transcribing Gemini Master JSON...'}</div>
+                  <div className="text-xs font-bold">{isAutoScanFlashMode ? (key === 'local' ? 'Digitizing uploaded image...' : 'Generating and digitizing standardized image...') : isAutoPlanGenerationMode ? `Generating and digitizing variant ${key === 'master' ? '1' : '2'}...` : isText4jMode ? 'Fetching Roboflow wall geometry...' : 'Transcribing Gemini Master JSON...'}</div>
                 </div>
               ) : result.status === 'idle' ? (
                 <div className="flex flex-col items-center gap-3 max-w-xs text-slate-700">

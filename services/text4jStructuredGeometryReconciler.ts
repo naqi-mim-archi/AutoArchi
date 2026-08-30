@@ -13,11 +13,17 @@ export interface Text4jReconciliationRaster {
 }
 
 export interface Text4jStructuredReconciliationAudit {
-  provider: 'Structured3D';
+  provider: 'Roboflow';
+  mode: 'provider-primary' | 'local-primary' | 'repair';
   baselineWalls: number;
   structuredFaces: number;
   pairedCenterlines: number;
+  straightCandidates: number;
+  curvedCandidates: number;
+  providerComplete: boolean;
+  selectionReason: string;
   acceptedRepairs: number;
+  retainedLocalApertureHosts: number;
   rejectedUnpaired: number;
   rejectedUnsupported: number;
   rejectedModeConflict: number;
@@ -40,6 +46,7 @@ interface PixelSegment {
 interface CenterlineCandidate extends PixelSegment {
   bandSupport: number;
   faceSeparation: number;
+  geometryKind: 'straight' | 'curved-chord' | 'circle-bridge';
 }
 
 interface MetricSegment {
@@ -49,6 +56,7 @@ interface MetricSegment {
   bandSupport: number;
   faceSeparation: number;
   confidence: number;
+  geometryKind: 'straight' | 'curved-chord' | 'circle-bridge';
 }
 
 interface SegmentRelation {
@@ -130,7 +138,7 @@ const relateSegments = (
   };
 };
 
-const rasterIsDark = (raster: Text4jReconciliationRaster, x: number, y: number) => {
+export const rasterIsDark = (raster: Text4jReconciliationRaster, x: number, y: number) => {
   const px = Math.round(x), py = Math.round(y);
   if (px < 0 || py < 0 || px >= raster.width || py >= raster.height) return false;
   const offset = (py * raster.width + px) * 4;
@@ -141,118 +149,67 @@ const rasterIsDark = (raster: Text4jReconciliationRaster, x: number, y: number) 
   return alpha > 24 && red * 0.299 + green * 0.587 + blue * 0.114 < 185;
 };
 
-const bandSupportBetweenFaces = (
-  first: PixelSegment,
-  second: PixelSegment,
-  relation: SegmentRelation,
+const centerlineBandSupport = (
+  candidate: Pick<PixelSegment, 'p1' | 'p2' | 'length'>,
+  thickness: number,
   raster: Text4jReconciliationRaster,
 ) => {
+  if (candidate.length <= 1e-8) return 0;
   const unit = {
-    x: (first.p2.x - first.p1.x) / first.length,
-    y: (first.p2.y - first.p1.y) / first.length,
+    x: (candidate.p2.x - candidate.p1.x) / candidate.length,
+    y: (candidate.p2.y - candidate.p1.y) / candidate.length,
   };
-  const alongSamples = Math.max(10, Math.min(36, Math.round((relation.overlapEnd - relation.overlapStart) / 12)));
+  const normal = { x: -unit.y, y: unit.x };
+  // A hollow double-line wall can have a white center. Sample far enough
+  // across the detected band to include its two ink faces.
+  const halfBand = Math.max(1, thickness * .48);
+  const alongSamples = Math.max(10, Math.min(48, Math.round(candidate.length / 6)));
+  const acrossSamples = Math.max(5, Math.min(13, Math.round(halfBand * 2) + 1));
   let dark = 0, total = 0;
   for (let index = 0; index < alongSamples; index++) {
-    const distance = relation.overlapStart + (relation.overlapEnd - relation.overlapStart) * ((index + 0.5) / alongSamples);
-    const onFirst = { x: first.p1.x + unit.x * distance, y: first.p1.y + unit.y * distance };
-    const onSecond = projectPointToSegment(onFirst, second).point;
-    const acrossSamples = Math.max(3, Math.min(11, Math.round(pointDistance(onFirst, onSecond)) + 1));
+    const distance = candidate.length * ((index + .5) / alongSamples);
+    const onLine = { x: candidate.p1.x + unit.x * distance, y: candidate.p1.y + unit.y * distance };
     for (let across = 0; across < acrossSamples; across++) {
-      const progress = acrossSamples === 1 ? 0.5 : across / (acrossSamples - 1);
-      const point = {
-        x: onFirst.x + (onSecond.x - onFirst.x) * progress,
-        y: onFirst.y + (onSecond.y - onFirst.y) * progress,
-      };
+      const offset = (across / (acrossSamples - 1) - .5) * 2 * halfBand;
       total++;
-      if (rasterIsDark(raster, point.x, point.y)) dark++;
+      if (rasterIsDark(raster, onLine.x + normal.x * offset, onLine.y + normal.y * offset)) dark++;
     }
   }
   return total ? dark / total : 0;
 };
 
-const centerlineBetweenFaces = (
-  first: PixelSegment,
-  second: PixelSegment,
-  relation: SegmentRelation,
-  support: number,
-): CenterlineCandidate => {
-  const unit = {
-    x: (first.p2.x - first.p1.x) / first.length,
-    y: (first.p2.y - first.p1.y) / first.length,
-  };
-  const pointAt = (distance: number) => {
-    const onFirst = { x: first.p1.x + unit.x * distance, y: first.p1.y + unit.y * distance };
-    const onSecond = projectPointToSegment(onFirst, second).point;
-    return { x: (onFirst.x + onSecond.x) / 2, y: (onFirst.y + onSecond.y) / 2 };
-  };
-  const p1 = pointAt(relation.overlapStart), p2 = pointAt(relation.overlapEnd);
-  return {
-    p1,
-    p2,
-    length: segmentLength(p1, p2),
-    confidence: clamp((first.confidence + second.confidence) / 2 * 0.65 + support * 0.35, 0, 0.98),
-    bandSupport: support,
-    faceSeparation: relation.normalDistance,
-  };
-};
-
-const normalizeStructuredFaces = (
+const normalizeProviderCenterlines = (
   walls: Text4jStructuredWallCandidate[],
   raster: Text4jReconciliationRaster,
   typicalThickness: number,
+  minimumRasterSupport = .32,
 ) => {
-  const faces: PixelSegment[] = walls.flatMap(wall => {
+  let unsupported = 0;
+  const verified: CenterlineCandidate[] = walls.flatMap(wall => {
     const p1 = { ...wall.p1 }, p2 = { ...wall.p2 };
     const length = segmentLength(p1, p2);
-    return length >= Math.max(5, typicalThickness * 1.4)
-      ? [{ p1, p2, length, confidence: wall.confidence }]
-      : [];
-  });
-  const minimumSeparation = Math.max(1.5, typicalThickness * 0.18);
-  const maximumSeparation = Math.max(4, typicalThickness * 1.8);
-  const hypotheses: Array<{ first: number; second: number; candidate: CenterlineCandidate; score: number }> = [];
-  faces.forEach((first, firstIndex) => {
-    for (let secondIndex = firstIndex + 1; secondIndex < faces.length; secondIndex++) {
-      const second = faces[secondIndex];
-      const relation = relateSegments(first, second);
-      if (relation.angleDifference > 3 * Math.PI / 180
-        || relation.overlapRatio < 0.58
-        || relation.normalDistance < minimumSeparation
-        || relation.normalDistance > maximumSeparation) continue;
-      const support = bandSupportBetweenFaces(first, second, relation, raster);
-      if (support < 0.5) continue;
-      const candidate = centerlineBetweenFaces(first, second, relation, support);
-      const thicknessAgreement = 1 - Math.min(1, Math.abs(relation.normalDistance - typicalThickness) / Math.max(1, typicalThickness));
-      hypotheses.push({
-        first: firstIndex,
-        second: secondIndex,
-        candidate,
-        score: support * 3 + relation.overlapRatio + thicknessAgreement * 0.35,
-      });
-    }
+    const geometryKind = wall.geometryKind || 'straight';
+    const curved = geometryKind !== 'straight';
+    if (length < Math.max(curved ? 2 : 5, typicalThickness * (curved ? .32 : .9))) { unsupported++; return []; }
+    const thickness = wall.thicknessPixels && wall.thicknessPixels > 0 ? wall.thicknessPixels : typicalThickness;
+    const support = centerlineBandSupport({ p1, p2, length }, thickness, raster);
+    // Centerlines are supported either by a solid band or the two faces of a
+    // hollow wall; the latter has lower aggregate dark coverage by design.
+    if (support < minimumRasterSupport) { unsupported++; return []; }
+    return [{ p1, p2, length, confidence: clamp(wall.confidence * .65 + support * .35, 0, .98), bandSupport: support, faceSeparation: thickness, geometryKind }];
   });
 
-  const used = new Set<number>();
-  const paired: CenterlineCandidate[] = [];
-  hypotheses.sort((a, b) => b.score - a.score || b.candidate.length - a.candidate.length).forEach(hypothesis => {
-    if (used.has(hypothesis.first) || used.has(hypothesis.second)) return;
-    used.add(hypothesis.first);
-    used.add(hypothesis.second);
-    paired.push(hypothesis.candidate);
-  });
-
-  const deduplicated: CenterlineCandidate[] = [];
-  [...paired].sort((a, b) => b.bandSupport - a.bandSupport || b.length - a.length).forEach(candidate => {
-    const duplicate = deduplicated.some(existing => {
+  const candidates: CenterlineCandidate[] = [];
+  let duplicates = 0;
+  verified.sort((a, b) => b.bandSupport - a.bandSupport || b.length - a.length).forEach(candidate => {
+    const duplicate = candidates.some(existing => {
       const relation = relateSegments(candidate, existing);
-      return relation.angleDifference <= 3 * Math.PI / 180
-        && relation.overlapRatio >= 0.65
-        && relation.normalDistance <= Math.max(2, typicalThickness * 0.7);
+      return relation.angleDifference <= 3 * Math.PI / 180 && relation.overlapRatio >= .65 && relation.normalDistance <= Math.max(2, typicalThickness * .7);
     });
-    if (!duplicate) deduplicated.push(candidate);
+    if (duplicate) duplicates++;
+    else candidates.push(candidate);
   });
-  return { faces, paired: deduplicated, usedFaceCount: used.size };
+  return { candidates, unsupported, duplicates };
 };
 
 const estimatePixelMetricTransform = (
@@ -439,6 +396,276 @@ const countNearOverlaps = (walls: GeneratedWall[], tolerance: number) => {
   return count;
 };
 
+/**
+ * A provider result may have enough total length and footprint to look
+ * complete numerically while actually being several unrelated islands. That
+ * is not safe to import as the wall authority when Local has one coherent
+ * network. Keep this topology check deliberately comparative: detached
+ * buildings remain valid when the Local source is similarly detached.
+ */
+const networkCoherence = (
+  segments: Array<Pick<PixelSegment, 'p1' | 'p2' | 'length'>>,
+  connectionTolerance: number,
+  minimumLength: number,
+) => {
+  const retained = segments.filter(segment => segment.length >= minimumLength);
+  if (!retained.length) return { components: 0, largestCoverage: 0 };
+  const parents = retained.map((_, index) => index);
+  const root = (index: number): number => parents[index] === index ? index : (parents[index] = root(parents[index]));
+  const join = (first: number, second: number) => {
+    const a = root(first), b = root(second);
+    if (a !== b) parents[b] = a;
+  };
+  for (let first = 0; first < retained.length; first++) {
+    for (let second = first + 1; second < retained.length; second++) {
+      const a = retained[first], b = retained[second];
+      const separation = Math.min(
+        projectPointToSegment(a.p1, b).distance,
+        projectPointToSegment(a.p2, b).distance,
+        projectPointToSegment(b.p1, a).distance,
+        projectPointToSegment(b.p2, a).distance,
+      );
+      if (separation <= connectionTolerance) join(first, second);
+    }
+  }
+  const totals = new Map<number, number>();
+  retained.forEach((segment, index) => {
+    const key = root(index);
+    totals.set(key, (totals.get(key) || 0) + segment.length);
+  });
+  const totalLength = retained.reduce((sum, segment) => sum + segment.length, 0);
+  const largestLength = Math.max(...totals.values());
+  return {
+    components: totals.size,
+    largestCoverage: totalLength > 1e-8 ? largestLength / totalLength : 0,
+  };
+};
+
+/**
+ * Door and window gaps intentionally disconnect an otherwise coherent wall
+ * graph. Reconnect those components for the ownership decision only when a
+ * Local aperture independently supports a collinear endpoint pair. No wall is
+ * added or changed in the returned Hybrid geometry.
+ */
+const apertureAwareNetworkCoherence = (
+  segments: Array<Pick<PixelSegment, 'p1' | 'p2' | 'length'>>,
+  connectionTolerance: number,
+  minimumLength: number,
+  apertures: Array<{ pos: PixelPoint; width: number; rotation: number }>,
+) => {
+  const retained = segments.filter(segment => segment.length >= minimumLength);
+  if (!retained.length) return { components: 0, largestCoverage: 0, apertureBridges: 0 };
+  const parents = retained.map((_, index) => index);
+  const root = (index: number): number => parents[index] === index ? index : (parents[index] = root(parents[index]));
+  const join = (first: number, second: number) => {
+    const a = root(first), b = root(second);
+    if (a === b) return false;
+    parents[b] = a;
+    return true;
+  };
+  let apertureBridges = 0;
+  for (let firstIndex = 0; firstIndex < retained.length; firstIndex++) {
+    for (let secondIndex = firstIndex + 1; secondIndex < retained.length; secondIndex++) {
+      const first = retained[firstIndex], second = retained[secondIndex];
+      const separation = Math.min(
+        projectPointToSegment(first.p1, second).distance,
+        projectPointToSegment(first.p2, second).distance,
+        projectPointToSegment(second.p1, first).distance,
+        projectPointToSegment(second.p2, first).distance,
+      );
+      if (separation <= connectionTolerance) {
+        join(firstIndex, secondIndex);
+        continue;
+      }
+      if (undirectedAngleDifference(segmentAngle(first), segmentAngle(second)) > 10 * Math.PI / 180) continue;
+      const endpointPairs = [
+        [first.p1, second.p1], [first.p1, second.p2],
+        [first.p2, second.p1], [first.p2, second.p2],
+      ] as const;
+      const [firstEndpoint, secondEndpoint] = [...endpointPairs]
+        .sort((a, b) => pointDistance(a[0], a[1]) - pointDistance(b[0], b[1]))[0];
+      const gapWidth = pointDistance(firstEndpoint, secondEndpoint);
+      const gapAngle = Math.atan2(secondEndpoint.y - firstEndpoint.y, secondEndpoint.x - firstEndpoint.x);
+      if (undirectedAngleDifference(segmentAngle(first), gapAngle) > 14 * Math.PI / 180
+        || undirectedAngleDifference(segmentAngle(second), gapAngle) > 14 * Math.PI / 180) continue;
+      const midpoint = {
+        x: (firstEndpoint.x + secondEndpoint.x) / 2,
+        y: (firstEndpoint.y + secondEndpoint.y) / 2,
+      };
+      const supported = apertures.some(aperture => {
+        if (!(aperture.width > .2)
+          || gapWidth < aperture.width * .3
+          || gapWidth > aperture.width * 2.5) return false;
+        const apertureAngle = aperture.rotation * Math.PI / 180;
+        return undirectedAngleDifference(apertureAngle, gapAngle) <= 24 * Math.PI / 180
+          && pointDistance(aperture.pos, midpoint) <= Math.max(.55, aperture.width * 1.15);
+      });
+      if (supported && join(firstIndex, secondIndex)) apertureBridges++;
+    }
+  }
+  const totals = new Map<number, number>();
+  retained.forEach((segment, index) => {
+    const key = root(index);
+    totals.set(key, (totals.get(key) || 0) + segment.length);
+  });
+  const totalLength = retained.reduce((sum, segment) => sum + segment.length, 0);
+  return {
+    components: totals.size,
+    largestCoverage: totalLength > 1e-8 ? Math.max(...totals.values()) / totalLength : 0,
+    apertureBridges,
+  };
+};
+
+const polygonAreaAndPerimeter = (points: PixelPoint[]) => {
+  let doubleArea = 0, perimeter = 0;
+  for (let index = 0; index < points.length; index++) {
+    const first = points[index], second = points[(index + 1) % points.length];
+    doubleArea += first.x * second.y - second.x * first.y;
+    perimeter += pointDistance(first, second);
+  }
+  return { area: Math.abs(doubleArea) / 2, perimeter };
+};
+
+const circularProviderEnvelope = (
+  structured: Text4jStructuredGeometry,
+  transform: PixelMetricTransform,
+): number[][] | undefined => {
+  const curvedPoints = structured.walls.flatMap(wall =>
+    (wall.geometryKind === 'curved-chord' || wall.geometryKind === 'circle-bridge')
+      ? [transform.map(wall.p1), transform.map(wall.p2)]
+      : []);
+  if (curvedPoints.length < 12) return undefined;
+  const minX = Math.min(...curvedPoints.map(point => point.x));
+  const maxX = Math.max(...curvedPoints.map(point => point.x));
+  const minY = Math.min(...curvedPoints.map(point => point.y));
+  const maxY = Math.max(...curvedPoints.map(point => point.y));
+  const center = { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
+  const radii = curvedPoints.map(point => pointDistance(point, center));
+  const radius = median(radii);
+  if (!(radius > .5)) return undefined;
+  const radialError = median(radii.map(value => Math.abs(value - radius))) / radius;
+  const aspect = (maxX - minX) / Math.max(1e-8, maxY - minY);
+  if (radialError > .08 || aspect < .82 || aspect > 1.22) return undefined;
+  return Array.from({ length: 129 }, (_, index) => {
+    const angle = TAU * index / 128;
+    return [center.x + Math.cos(angle) * radius, center.y + Math.sin(angle) * radius];
+  });
+};
+
+const alignCircularHybridEnvelope = (
+  baseline: GeneratedData,
+  structured: Text4jStructuredGeometry,
+  transform: PixelMetricTransform,
+): Partial<GeneratedData> | undefined => {
+  const boundary = circularProviderEnvelope(structured, transform);
+  if (!boundary) return undefined;
+  const slabs = baseline.slabs ? baseline.slabs.map(slab => ({ ...slab, boundary: slab.type === 'floor' ? boundary.map(point => [...point]) : slab.boundary })) : undefined;
+  return { boundary, ...(slabs ? { slabs } : {}) };
+};
+
+/**
+ * Local apertures are classified from the source raster, but their metric
+ * positions are initially expressed in the Local wall frame. When Roboflow
+ * becomes wall-primary that frame can differ enough for a correct door or
+ * window to float beside its corresponding provider gap. Pixel bounds are the
+ * common, model-independent evidence: map their centres through the same
+ * affine transform used for the Roboflow walls while leaving the Local/native
+ * objects untouched.
+ */
+const alignHybridAperturesToProviderFrame = (
+  baseline: GeneratedData,
+  transform: PixelMetricTransform,
+): Partial<GeneratedData> => {
+  const note = 'Hybrid pose aligned from Local raster evidence into the Roboflow wall frame.';
+  const align = <T extends {
+    pos: number[];
+    evidence?: { pixelBounds?: { x0: number; y0: number; x1: number; y1: number }; notes?: string[] };
+  }>(items: T[] | undefined): T[] | undefined => items?.map(item => {
+    const bounds = item.evidence?.pixelBounds;
+    if (!bounds || ![bounds.x0, bounds.y0, bounds.x1, bounds.y1].every(Number.isFinite)
+      || !(bounds.x1 > bounds.x0) || !(bounds.y1 > bounds.y0)) return item;
+    // Local evidence is measured on the <=1200 px working raster. The
+    // provider transform accepts original-source pixels, so undo the shared
+    // resize before applying it.
+    const sourceCenter = {
+      x: ((bounds.x0 + bounds.x1) / 2) / transform.resizeRatio,
+      y: ((bounds.y0 + bounds.y1) / 2) / transform.resizeRatio,
+    };
+    const mapped = transform.map(sourceCenter);
+    return {
+      ...item,
+      pos: [mapped.x, mapped.y],
+      evidence: item.evidence ? {
+        ...item.evidence,
+        notes: Array.from(new Set([...(item.evidence.notes || []), note])),
+      } : item.evidence,
+    };
+  });
+
+  const doors = align(baseline.doors);
+  const windows = align(baseline.windows);
+  const openings = align(baseline.openings);
+  return {
+    ...(doors ? { doors } : {}),
+    ...(windows ? { windows } : {}),
+    ...(openings ? { openings } : {}),
+  };
+};
+
+/**
+ * A very dense non-circular instance mask can represent a joined wall network.
+ * If its exported centerlines cover only a small fraction of that mask's
+ * implied medial length, importing it would visibly drop walls. The right
+ * fallback is the untouched Local wall JSON, never invented connections.
+ */
+export const evaluateProviderMaskRecovery = (structured: Text4jStructuredGeometry): {
+  evaluated: boolean;
+  underRecovered: boolean;
+  stronglyRecovered: boolean;
+  minimumCoverage: number;
+} => {
+  const elements = (structured.candidateJson as { elements?: Array<{
+    type?: string;
+    digitizationConfidence?: number;
+    metadata?: { roboflow?: { geometryRole?: string; planeId?: number; polygon?: PixelPoint[] }; structured3d?: { geometryRole?: string; planeId?: number; polygon?: PixelPoint[] } };
+  }> })?.elements || [];
+  const polygons: Array<{ points: PixelPoint[]; confidence: number; planeId: number }> = elements.flatMap(element => {
+    const source = element.metadata?.roboflow || element.metadata?.structured3d;
+    if (element.type !== 'wall' || source?.geometryRole !== 'outline' || !Array.isArray(source.polygon) || source.polygon.length < 3) return [];
+    const points = source.polygon.filter(point => Number.isFinite(point?.x) && Number.isFinite(point?.y));
+    return points.length >= 3 ? [{ points, confidence: clamp(Number(element.digitizationConfidence) || .8, 0, 1), class: 'wall', planeId: Number(source.planeId) }] : [];
+  });
+  // Circular plans have a separate, intentionally chord-based conversion and
+  // must never be judged by straight-network length coverage. A curved chord
+  // is emitted only by that dedicated Roboflow route.
+  if (!polygons.length || structured.walls.some(wall => (wall.geometryKind || 'straight') !== 'straight')) {
+    return { evaluated: false, underRecovered: false, stronglyRecovered: false, minimumCoverage: 0 };
+  }
+  const coverages = polygons.flatMap(polygon => {
+    if (polygon.confidence < .9 || polygon.points.length < 500 || !Number.isFinite(polygon.planeId)) return [];
+    const { area, perimeter } = polygonAreaAndPerimeter(polygon.points);
+    const impliedHalfThickness = perimeter > 1e-8 ? area / perimeter : 0;
+    const expectedCenterlineLength = impliedHalfThickness > 1e-8 ? area / (impliedHalfThickness * 2) : 0;
+    if (expectedCenterlineLength < 100) return [];
+    const recoveredLength = structured.walls
+      .filter(wall => wall.planeId === polygon.planeId)
+      .reduce((sum, wall) => sum + pointDistance(wall.p1, wall.p2), 0);
+    return [recoveredLength / expectedCenterlineLength];
+  });
+  if (!coverages.length) return { evaluated: false, underRecovered: false, stronglyRecovered: false, minimumCoverage: 0 };
+  const minimumCoverage = Math.min(...coverages);
+  return {
+    evaluated: true,
+    underRecovered: minimumCoverage < .58,
+    // Dense masks can legitimately contain several components because doors
+    // and windows split their centreline graph. When the connector preserved
+    // at least 82% of every evaluated mask, that separation is aperture
+    // topology—not evidence that Local should replace the Roboflow walls.
+    stronglyRecovered: minimumCoverage >= .82,
+    minimumCoverage,
+  };
+};
+
 export const reconcileText4jStructuredGeometryWithRaster = (
   baseline: GeneratedData,
   structured: Text4jStructuredGeometry,
@@ -446,12 +673,18 @@ export const reconcileText4jStructuredGeometryWithRaster = (
 ): { data: GeneratedData; audit: Text4jStructuredReconciliationAudit } => {
   const baselineWalls = [...(baseline.walls || [])];
   const audit: Text4jStructuredReconciliationAudit = {
-    provider: 'Structured3D',
+    provider: 'Roboflow',
+    mode: 'repair',
     baselineWalls: baselineWalls.length,
     structuredFaces: structured.walls.length,
     pairedCenterlines: 0,
+    straightCandidates: structured.walls.filter(wall => (wall.geometryKind || 'straight') === 'straight').length,
+    curvedCandidates: structured.walls.filter(wall => (wall.geometryKind || 'straight') !== 'straight').length,
+    providerComplete: false,
+    selectionReason: 'Roboflow geometry has not been evaluated yet.',
     acceptedRepairs: 0,
-    rejectedUnpaired: structured.walls.length,
+    retainedLocalApertureHosts: 0,
+    rejectedUnpaired: 0,
     rejectedUnsupported: 0,
     rejectedModeConflict: 0,
     rejectedExistingWall: 0,
@@ -461,9 +694,10 @@ export const reconcileText4jStructuredGeometryWithRaster = (
     finalWalls: baselineWalls.length,
     unavailable: false,
   };
-  const finalize = (walls: GeneratedWall[], unavailableWarning?: string) => ({
+  const finalize = (walls: GeneratedWall[], unavailableWarning?: string, overrides?: Partial<GeneratedData>) => ({
     data: {
       ...baseline,
+      ...overrides,
       walls,
       extractionDiagnostics: baseline.extractionDiagnostics ? {
         ...baseline.extractionDiagnostics,
@@ -482,113 +716,342 @@ export const reconcileText4jStructuredGeometryWithRaster = (
   const transform = estimatePixelMetricTransform(baseline, structured);
   if (!transform || baselineWalls.length < 3) {
     audit.unavailable = true;
+    audit.mode = 'local-primary';
+    audit.selectionReason = 'Local Primary: Roboflow could not be aligned to the Local metric frame.';
     return finalize(
       baselineWalls,
-      `Structured3D contribution unavailable: Local baseline ${baselineWalls.length} walls = J Hybrid Final ${baselineWalls.length} walls because pixel-to-Local alignment could not be established.`,
+      `Roboflow contribution unavailable: Local baseline ${baselineWalls.length} walls = J Hybrid Final ${baselineWalls.length} walls because pixel-to-Local alignment could not be established.`,
     );
   }
 
-  const normalized = normalizeStructuredFaces(structured.walls, raster, transform.sourceWallThicknessPixels);
-  audit.pairedCenterlines = normalized.paired.length;
-  audit.rejectedUnpaired = Math.max(0, normalized.faces.length - normalized.usedFaceCount);
-  const candidates: MetricSegment[] = normalized.paired.map(candidate => {
+  const providerThickness = median(structured.walls.map(wall => Number(wall.thicknessPixels)).filter(value => Number.isFinite(value) && value > 0));
+  const sourceThickness = providerThickness || transform.sourceWallThicknessPixels;
+  // Start with the permissive detector support needed for pale/double-line
+  // drawings, then make the ownership decision from measured completeness.
+  // Raw segment count is deliberately not an ownership signal: a broken circle
+  // can contain many tiny chords while still missing most of its footprint.
+  const normalized = normalizeProviderCenterlines(
+    structured.walls,
+    raster,
+    sourceThickness,
+    baseline.extractionDiagnostics?.confidence === 'low'
+      || structured.walls.some(wall => (wall.geometryKind || 'straight') !== 'straight')
+      ? .04
+      : .32,
+  );
+  audit.pairedCenterlines = normalized.candidates.length;
+  audit.rejectedUnpaired = normalized.duplicates;
+  audit.rejectedUnsupported = normalized.unsupported;
+  const candidates: MetricSegment[] = normalized.candidates.map(candidate => {
     const p1 = transform.map(candidate.p1), p2 = transform.map(candidate.p2);
     return { ...candidate, p1, p2, length: pointDistance(p1, p2) };
   });
   const mode = baselineMode(baselineWalls);
-  const wallThicknessMeters = Math.max(0.08, transform.sourceWallThicknessPixels * transform.resizeRatio * transform.metersPerPixel);
+  const baselineLength = baselineWalls.reduce((sum, wall) =>
+    sum + sampleWallSegments(wall).reduce((wallSum, segment) => wallSum + segment.length, 0), 0);
+  const candidateLength = candidates.reduce((sum, candidate) => sum + candidate.length, 0);
+  const curvedCandidateLength = candidates
+    .filter(candidate => candidate.geometryKind !== 'straight')
+    .reduce((sum, candidate) => sum + candidate.length, 0);
+  const wallThicknessMeters = Math.max(0.08, sourceThickness * transform.resizeRatio * transform.metersPerPixel);
+  const networkConnectionTolerance = Math.max(0.22, wallThicknessMeters * 2.2);
+  const networkMinimumLength = Math.max(0.16, wallThicknessMeters * .75);
+  const providerNetwork = networkCoherence(candidates, networkConnectionTolerance, networkMinimumLength);
+  const localNetwork = networkCoherence(
+    baselineWalls.flatMap(sampleWallSegments), networkConnectionTolerance, networkMinimumLength,
+  );
+  const apertureHints = [
+    ...(baseline.doors || []),
+    ...(baseline.windows || []),
+    ...(baseline.openings || []),
+  ].flatMap(aperture => aperture.pos?.length >= 2 && Number(aperture.width) > .2
+    ? [{
+        pos: toPoint(aperture.pos),
+        width: Number(aperture.measuredWidth) > .2 ? Number(aperture.measuredWidth) : Number(aperture.width),
+        rotation: Number(aperture.rotation) || 0,
+      }]
+    : []);
+  const apertureAwareProviderNetwork = apertureAwareNetworkCoherence(
+    candidates,
+    networkConnectionTolerance,
+    networkMinimumLength,
+    apertureHints,
+  );
+  const providerApertureSeparated = apertureAwareProviderNetwork.apertureBridges > 0
+    && apertureAwareProviderNetwork.largestCoverage >= .68
+    && apertureAwareProviderNetwork.largestCoverage >= providerNetwork.largestCoverage + .24;
+  // Do not replace an intact Local plan with a disconnected Roboflow fragment
+  // cloud. This catches failed connected-instance conversion while leaving
+  // genuine detached plan parts alone when Local has the same topology.
+  const providerMaskRecovery = evaluateProviderMaskRecovery(structured);
+  const providerUnderRecovered = providerMaskRecovery.underRecovered;
+  // A validated circular shell is intentionally split at doors/windows, so
+  // its largest connected chord island is not a completeness signal. The
+  // circular envelope check independently requires a stable centre, radius,
+  // aspect and radial fit; once that passes, keep Roboflow authoritative and
+  // let Local contribute only rooms/openings/details.
+  const verifiedCircularProvider = !!circularProviderEnvelope(structured, transform);
+  const providerFragmented = candidates.length >= 8
+    && providerNetwork.components >= 3
+    && providerNetwork.largestCoverage < .58
+    && localNetwork.largestCoverage >= providerNetwork.largestCoverage + .18
+    && !providerMaskRecovery.stronglyRecovered
+    && !verifiedCircularProvider;
+  const providerTrulyFragmented = providerFragmented && !providerApertureSeparated;
+  const boundsOf = (points: PixelPoint[]) => points.reduce((result, point) => ({
+    minX: Math.min(result.minX, point.x), maxX: Math.max(result.maxX, point.x),
+    minY: Math.min(result.minY, point.y), maxY: Math.max(result.maxY, point.y),
+  }), { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity });
+  const baselineBounds = boundsOf(baselineWalls.flatMap(wall => sampleWallSegments(wall).flatMap(segment => [segment.p1, segment.p2])));
+  const candidateBounds = boundsOf(candidates.flatMap(candidate => [candidate.p1, candidate.p2]));
+  const baselineSpanX = baselineBounds.maxX - baselineBounds.minX, baselineSpanY = baselineBounds.maxY - baselineBounds.minY;
+  const candidateSpanX = candidateBounds.maxX - candidateBounds.minX, candidateSpanY = candidateBounds.maxY - candidateBounds.minY;
+  const extentCoverage = Math.min(
+    baselineSpanX > 1e-6 ? candidateSpanX / baselineSpanX : 1,
+    baselineSpanY > 1e-6 ? candidateSpanY / baselineSpanY : 1,
+  );
+  const lengthCoverage = baselineLength > 1e-6 ? candidateLength / baselineLength : 0;
+  const curvedCoverage = baselineLength > 1e-6 ? curvedCandidateLength / baselineLength : 0;
+  const requiresCurvedCoverage = mode === 'curved' || mode === 'hybrid';
+  // The raster band-support pass above re-verifies every candidate against the
+  // uploaded photo pixel-for-pixel. That check is intentionally strict, but a
+  // small registration mismatch between the reconciliation raster and the mask
+  // coordinates (resize, compression, EXIF) hits long/diagonal walls hardest
+  // and can silently starve extent/length coverage while every other polygon
+  // still passes. evaluateProviderMaskRecovery already proved (independent of
+  // the raster) that the connector's own polygon-to-centerline conversion
+  // faithfully recovered the mask, so a strong result there is sufficient on
+  // its own to satisfy the coverage gate below, exactly as it already does for
+  // the fragmentation check.
+  // A raster-band mismatch that hits most/all candidates (a real photo's
+  // compression, lighting or registration noise, not just one polygon) can
+  // starve `candidates` itself, not only the coverage ratios above. The same
+  // independent, raster-free proof that bypasses the coverage gate must also
+  // bypass the raster-derived candidate-count floor below it -- otherwise a
+  // photo that fails band-support broadly still blocks a mask conversion this
+  // function has already verified is correct.
+  const providerVerifiedIndependently = verifiedCircularProvider || providerMaskRecovery.stronglyRecovered;
+  const coverageSatisfied = providerVerifiedIndependently || (
+    extentCoverage >= .82
+    && lengthCoverage >= .55
+    && (!requiresCurvedCoverage || curvedCoverage >= .22)
+  );
+  audit.providerComplete = (candidates.length >= 3 || providerVerifiedIndependently)
+    && coverageSatisfied
+    && !providerUnderRecovered;
+  audit.selectionReason = providerUnderRecovered
+    ? 'Local Primary: a dense non-circular Roboflow wall mask lost too much centerline length during conversion.'
+    : audit.providerComplete
+    ? providerApertureSeparated
+      ? `Roboflow Primary eligible: ${apertureAwareProviderNetwork.apertureBridges} disconnected wall gaps were independently matched to Local door/window evidence (${Math.round(apertureAwareProviderNetwork.largestCoverage * 100)}% aperture-aware network coverage).`
+      : providerTrulyFragmented
+      ? `Roboflow Primary eligible: verified footprint, wall-length and raster support override disconnected-island topology (${Math.round(providerNetwork.largestCoverage * 100)}% largest island); door/window gaps and detached runs are retained exactly.`
+      : verifiedCircularProvider
+      ? `Roboflow Primary eligible: a stable circular provider envelope was verified independently of aperture-separated chord connectivity.`
+      : providerMaskRecovery.stronglyRecovered && !(extentCoverage >= .82 && lengthCoverage >= .55 && (!requiresCurvedCoverage || curvedCoverage >= .22))
+      ? `Roboflow Primary eligible: mask recovery preserved ${Math.round(providerMaskRecovery.minimumCoverage * 100)}% of the detected wall mask (raster band-support coverage was only ${Math.round(extentCoverage * 100)}% footprint span, ${Math.round(lengthCoverage * 100)}% wall-length).`
+      : `Roboflow Primary eligible: ${Math.round(extentCoverage * 100)}% footprint span, ${Math.round(lengthCoverage * 100)}% wall-length coverage${requiresCurvedCoverage ? `, ${Math.round(curvedCoverage * 100)}% curved coverage` : ''}.`
+    : `${baseline.extractionDiagnostics?.confidence === 'low' ? 'Local Primary' : 'Local Repair'}: Roboflow conversion incomplete (${Math.round(extentCoverage * 100)}% footprint span, ${Math.round(lengthCoverage * 100)}% wall-length coverage${requiresCurvedCoverage ? `, ${Math.round(curvedCoverage * 100)}% curved coverage` : ''}${providerTrulyFragmented ? `, ${Math.round(providerNetwork.largestCoverage * 100)}% largest connected island` : ''}).`;
+  const providerPrimary = audit.providerComplete;
+  if (providerUnderRecovered || (baseline.extractionDiagnostics?.confidence === 'low' && !audit.providerComplete)) {
+    audit.mode = 'local-primary';
+    audit.finalWalls = baselineWalls.length;
+    return finalize(baselineWalls);
+  }
+  // When Local declares its extraction low-confidence, or the detector
+  // recovered substantially more verified structure, Roboflow leads walls.
+  // Local still owns all native scale, rooms, openings and labels.
+  audit.mode = providerPrimary ? 'provider-primary' : 'repair';
   const existingTolerance = Math.max(0.12, wallThicknessMeters * 1.3);
   const connectionTolerance = Math.max(0.22, wallThicknessMeters * 1.8);
   const overlapTolerance = Math.max(0.08, wallThicknessMeters * 1.35);
-  const baselineOverlapCount = countNearOverlaps(baselineWalls, overlapTolerance);
-  const baselineLength = baselineWalls.reduce((sum, wall) => sum + pointDistance(toPoint(wall.p1), toPoint(wall.p2)), 0);
+  const overlapBaseline = providerPrimary ? [] : baselineWalls;
+  const baselineOverlapCount = countNearOverlaps(overlapBaseline, overlapTolerance);
   const maximumAddedLength = Math.max(2.5, baselineLength * 0.38);
-  const bounds = baselineWalls.flatMap(wall => [toPoint(wall.p1), toPoint(wall.p2)]).reduce((result, point) => ({
+  const bounds = [...baselineWalls.flatMap(wall => [toPoint(wall.p1), toPoint(wall.p2)]), ...(providerPrimary ? candidates.flatMap(candidate => [candidate.p1, candidate.p2]) : [])].reduce((result, point) => ({
     minX: Math.min(result.minX, point.x), maxX: Math.max(result.maxX, point.x),
     minY: Math.min(result.minY, point.y), maxY: Math.max(result.maxY, point.y),
   }), { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity });
   const accepted: GeneratedWall[] = [];
+  const acceptedGeometryKinds: MetricSegment['geometryKind'][] = [];
   let acceptedLength = 0;
   let currentOverlapCount = baselineOverlapCount;
 
   candidates.sort((a, b) => b.bandSupport - a.bandSupport || b.length - a.length).forEach(candidate => {
     const angle = segmentAngle(candidate);
     const drift = axisDrift(angle);
-    if ((mode === 'orthogonal' && drift > 3)
-      || ((mode === 'curved' || mode === 'hybrid') && drift > 4)) {
+    if (!providerPrimary && ((mode === 'orthogonal' && drift > 3)
+      || ((mode === 'curved' || mode === 'hybrid') && drift > 4))) {
       audit.rejectedModeConflict++;
       return;
     }
-    if (candidate.length < 0.48 || candidate.bandSupport < 0.58) {
+    const minimumCandidateLength = providerPrimary
+      ? candidate.geometryKind === 'straight'
+        ? Math.max(.12, wallThicknessMeters * .45)
+        : Math.max(.05, wallThicknessMeters * .18)
+      : Math.max(.22, wallThicknessMeters * .8);
+    if (candidate.length < minimumCandidateLength
+      || (!providerPrimary && candidate.bandSupport < .4)) {
       audit.rejectedUnsupported++;
       return;
     }
-    if (baselineWalls.some(wall => candidateMatchesWall(candidate, wall, existingTolerance))
-      || accepted.some(wall => candidateMatchesWall(candidate, wall, existingTolerance))) {
+    if ((!providerPrimary && baselineWalls.some(wall => candidateMatchesWall(candidate, wall, existingTolerance)))
+      || (!providerPrimary && accepted.some(wall => candidateMatchesWall(candidate, wall, existingTolerance)))) {
       audit.rejectedExistingWall++;
       return;
     }
     const firstAttachment = nearestPointOnWalls(candidate.p1, [...baselineWalls, ...accepted]);
     const secondAttachment = nearestPointOnWalls(candidate.p2, [...baselineWalls, ...accepted]);
-    if (firstAttachment.distance > connectionTolerance || secondAttachment.distance > connectionTolerance) {
+    if (!providerPrimary && (firstAttachment.distance > connectionTolerance || secondAttachment.distance > connectionTolerance)) {
       audit.rejectedConnectivity++;
       return;
     }
-    if (properSegmentIntersections(candidate, baselineWalls, connectionTolerance).length > 1) {
+    if (!providerPrimary && properSegmentIntersections(candidate, baselineWalls, connectionTolerance).length > 1) {
       audit.rejectedConnectivity++;
       return;
     }
-    const snapped = {
+    const snapped = providerPrimary ? { ...candidate } : {
       ...candidate,
       p1: firstAttachment.point,
       p2: secondAttachment.point,
       length: pointDistance(firstAttachment.point, secondAttachment.point),
     };
-    if (snapped.length < 0.4 || [...baselineWalls, ...accepted].some(wall => candidateMatchesWall(snapped, wall, existingTolerance))) {
+    if (snapped.length < (providerPrimary ? minimumCandidateLength : Math.max(.18, wallThicknessMeters * .65))
+      || (!providerPrimary && baselineWalls.some(wall => candidateMatchesWall(snapped, wall, existingTolerance)))
+      || (!providerPrimary && accepted.some(wall => candidateMatchesWall(snapped, wall, existingTolerance)))) {
       audit.rejectedExistingWall++;
       return;
     }
     const midpoint = { x: (snapped.p1.x + snapped.p2.x) / 2, y: (snapped.p1.y + snapped.p2.y) / 2 };
-    const exterior = Math.min(
+    const exterior = snapped.geometryKind !== 'straight' || Math.min(
       Math.abs(midpoint.x - bounds.minX), Math.abs(midpoint.x - bounds.maxX),
       Math.abs(midpoint.y - bounds.minY), Math.abs(midpoint.y - bounds.maxY),
-    ) <= connectionTolerance && firstAttachment.wall?.type === 'exterior' && secondAttachment.wall?.type === 'exterior';
+    ) <= connectionTolerance && (providerPrimary || (firstAttachment.wall?.type === 'exterior' && secondAttachment.wall?.type === 'exterior'));
     const repair: GeneratedWall = {
       levelIndex: 0,
       p1: toArray(snapped.p1),
       p2: toArray(snapped.p2),
       type: exterior ? 'exterior' : 'interior',
+      measuredThickness: wallThicknessMeters,
       wallSource: 'line',
       isCurved: false,
       provenance: 'repair-generated',
       evidence: {
         source: 'geometry-repair',
         confidence: clamp(snapped.confidence, 0, 0.94),
-        notes: [`Structured3D paired wall faces accepted as a missing Local centerline (${Math.round(snapped.bandSupport * 100)}% raster-band support).`],
+        notes: [providerPrimary
+          ? `Roboflow wall centerline selected as the authoritative wall (${Math.round(snapped.bandSupport * 100)}% raster-band support).`
+          : `Roboflow wall centerline accepted as a missing Local wall (${Math.round(snapped.bandSupport * 100)}% raster-band support).`],
       },
     };
-    if (acceptedLength + snapped.length > maximumAddedLength) {
+    if (!providerPrimary && acceptedLength + snapped.length > maximumAddedLength) {
       audit.rejectedLengthBudget++;
       return;
     }
-    const proposedWalls = [...baselineWalls, ...accepted, repair];
-    const proposedOverlapCount = countNearOverlaps(proposedWalls, overlapTolerance);
-    if (proposedOverlapCount > currentOverlapCount) {
-      audit.rejectedOverlap++;
-      return;
+    if (!providerPrimary) {
+      const proposedWalls = [...overlapBaseline, ...accepted, repair];
+      const proposedOverlapCount = countNearOverlaps(proposedWalls, overlapTolerance);
+      if (proposedOverlapCount > currentOverlapCount) {
+        audit.rejectedOverlap++;
+        return;
+      }
+      currentOverlapCount = proposedOverlapCount;
     }
     accepted.push(repair);
+    acceptedGeometryKinds.push(snapped.geometryKind);
     acceptedLength += snapped.length;
-    currentOverlapCount = proposedOverlapCount;
   });
 
-  const walls = [...baselineWalls, ...accepted];
+  // The normalized candidates above are evidence for deciding whether the
+  // provider is complete. Once that gate passes, they must not become a second
+  // lossy conversion stage. Rebuild the accepted set directly from every wall
+  // emitted by the Roboflow connector, applying only the shared pixel-to-metric
+  // affine transform. This keeps count, ordering, endpoints and straight/curve
+  // classification invariant between the Roboflow and Hybrid panes.
+  if (providerPrimary) {
+    accepted.length = 0;
+    acceptedGeometryKinds.length = 0;
+    acceptedLength = 0;
+    structured.walls.forEach(sourceWall => {
+      const geometryKind = sourceWall.geometryKind || 'straight';
+      const p1 = transform.map(sourceWall.p1), p2 = transform.map(sourceWall.p2);
+      const length = pointDistance(p1, p2);
+      if (!(length > 1e-6)) return;
+      const midpoint = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+      const exterior = geometryKind !== 'straight' || Math.min(
+        Math.abs(midpoint.x - bounds.minX), Math.abs(midpoint.x - bounds.maxX),
+        Math.abs(midpoint.y - bounds.minY), Math.abs(midpoint.y - bounds.maxY),
+      ) <= connectionTolerance;
+      const measuredThickness = Math.max(
+        0.08,
+        (Number(sourceWall.thicknessPixels) > 0 ? Number(sourceWall.thicknessPixels) : sourceThickness)
+          * transform.resizeRatio * transform.metersPerPixel,
+      );
+      accepted.push({
+        levelIndex: 0,
+        p1: toArray(p1),
+        p2: toArray(p2),
+        type: exterior ? 'exterior' : 'interior',
+        measuredThickness,
+        wallSource: 'line',
+        isCurved: false,
+        provenance: 'repair-generated',
+        evidence: {
+          source: 'geometry-repair',
+          confidence: clamp(sourceWall.confidence, 0, 0.98),
+          notes: [`Roboflow ${geometryKind} wall preserved verbatim through the Hybrid affine transform.`],
+        },
+      });
+      acceptedGeometryKinds.push(geometryKind);
+      acceptedLength += length;
+    });
+  }
+
+  // Provider-primary has a strict ownership boundary: Roboflow owns every
+  // visible wall and Local owns only non-wall architectural data. Do not add
+  // Local aperture-host walls here. They changed both the wall count and the
+  // visible mask topology, so a clean Roboflow result became blocky in Hybrid.
+  // Local doors/windows are hosted later by the importer without mutating this
+  // authoritative wall array.
+  const acceptedProviderLength = accepted.reduce((sum, wall) => sum + pointDistance(toPoint(wall.p1), toPoint(wall.p2)), 0);
+  const acceptedCurvedLength = accepted
+    .filter((_, index) => acceptedGeometryKinds[index] !== 'straight')
+    .reduce((sum, wall) => sum + pointDistance(toPoint(wall.p1), toPoint(wall.p2)), 0);
+  const exactProviderLength = providerPrimary
+    ? structured.walls.reduce((sum, wall) => sum + pointDistance(transform.map(wall.p1), transform.map(wall.p2)), 0)
+    : candidateLength;
+  const exactCurvedLength = providerPrimary
+    ? structured.walls.filter(wall => (wall.geometryKind || 'straight') !== 'straight')
+      .reduce((sum, wall) => sum + pointDistance(transform.map(wall.p1), transform.map(wall.p2)), 0)
+    : curvedCandidateLength;
+  const providerRetention = exactProviderLength > 1e-6 ? acceptedProviderLength / exactProviderLength : 0;
+  const curvedRetention = exactCurvedLength > 1e-6 ? acceptedCurvedLength / exactCurvedLength : 1;
+  const providerSurvivedFinalValidation = accepted.length >= 3
+    && providerRetention >= .72
+    && (!requiresCurvedCoverage || curvedRetention >= .62);
+  let walls = providerPrimary && providerSurvivedFinalValidation ? [...accepted] : [...baselineWalls, ...accepted];
+  if (providerPrimary && !providerSurvivedFinalValidation) {
+    audit.unavailable = true;
+    audit.mode = 'local-primary';
+    audit.providerComplete = false;
+    audit.selectionReason = `Local Primary: only ${Math.round(providerRetention * 100)}% of converted Roboflow wall length and ${Math.round(curvedRetention * 100)}% of its curved wall length survived final validation.`;
+    walls = baselineWalls;
+  } else if (providerPrimary) {
+    audit.selectionReason += ` Preserved ${Math.round(providerRetention * 100)}% of converted wall length and ${Math.round(curvedRetention * 100)}% of curved wall length in Hybrid.`;
+  }
   audit.acceptedRepairs = accepted.length;
+  audit.retainedLocalApertureHosts = 0;
   audit.finalWalls = walls.length;
-  return finalize(walls);
+  const hybridEnvelope = providerPrimary && providerSurvivedFinalValidation
+    ? alignCircularHybridEnvelope(baseline, structured, transform)
+    : undefined;
+  const hybridApertures = providerPrimary && providerSurvivedFinalValidation
+    ? alignHybridAperturesToProviderFrame(baseline, transform)
+    : undefined;
+  return finalize(walls, undefined, { ...hybridEnvelope, ...hybridApertures });
 };
 
-const loadReconciliationRaster = (
+export const loadReconciliationRaster = (
   imageBase64: string,
   width: number,
   height: number,
@@ -600,7 +1063,7 @@ const loadReconciliationRaster = (
       canvas.width = width;
       canvas.height = height;
       const context = canvas.getContext('2d', { willReadFrequently: true });
-      if (!context) throw new Error('The browser could not create the Structured3D reconciliation raster.');
+      if (!context) throw new Error('The browser could not create the Roboflow reconciliation raster.');
       context.fillStyle = '#ffffff';
       context.fillRect(0, 0, width, height);
       context.drawImage(image, 0, 0, width, height);
@@ -609,7 +1072,7 @@ const loadReconciliationRaster = (
       reject(error);
     }
   };
-  image.onerror = () => reject(new Error('The source image could not be decoded for Structured3D reconciliation.'));
+  image.onerror = () => reject(new Error('The source image could not be decoded for Roboflow reconciliation.'));
   image.src = imageBase64;
 });
 

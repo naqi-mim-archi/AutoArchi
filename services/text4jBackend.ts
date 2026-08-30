@@ -8,16 +8,17 @@ import {
 import { MediaResolution, ThinkingLevel, Type } from "@google/genai";
 import { validateText4jMasterFloorplanGraph } from './text4jMasterFloorplanData';
 
-const STRUCTURED3D_BASE_URL = (process.env.STRUCTURED3D_URL || 'http://127.0.0.1:5000').replace(/\/$/, '');
+const ROBOFLOW_BASE_URL = (process.env.ROBOFLOW_API_URL || 'https://serverless.roboflow.com').replace(/\/$/, '');
+const ROBOFLOW_WORKSPACE = process.env.ROBOFLOW_WALL_WORKSPACE || 'mekael-shaikh-hzfwy';
+const ROBOFLOW_WORKFLOW_ID = process.env.ROBOFLOW_WALL_WORKFLOW_ID || 'curved-walls-floorplan-hvtuv';
 
 const decodeImagePayload = (value: unknown) => {
   if (typeof value !== 'string' || !value.trim()) {
-    throw new Error('Text 4.0 J Structured3D conversion requires imageBase64.');
+    throw new Error('Text 4.0 J Roboflow wall detection requires imageBase64.');
   }
   const match = value.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/s);
   return {
-    mimeType: match?.[1] || 'image/png',
-    bytes: Buffer.from(match?.[2] || value, 'base64'),
+    base64: match?.[2] || value,
   };
 };
 
@@ -303,39 +304,79 @@ export const routeText4jApiRequest = async (
   response: ApiResponse
 ): Promise<boolean> => {
   const url = request.url || '';
-  if (!url.startsWith('/api/text4j/generate') && !url.startsWith('/api/text4j/image') && !url.startsWith('/api/text4j/master-geometry') && !url.startsWith('/api/text4j/auth/warm') && !url.startsWith('/api/text4j/structured3d/convert')) {
+  if (!url.startsWith('/api/text4j/generate') && !url.startsWith('/api/text4j/image') && !url.startsWith('/api/text4j/master-geometry') && !url.startsWith('/api/text4j/auth/warm') && !url.startsWith('/api/text4j/roboflow/convert') && !url.startsWith('/api/text4j/structured3d/convert')) {
     response.status(404).json({ error: 'Unknown Text4j endpoint.' });
     return true;
   }
 
   try {
-    if (url.startsWith('/api/text4j/structured3d/convert')) {
-      const { mimeType, bytes } = decodeImagePayload(request.body?.imageBase64);
-      const form = new FormData();
-      form.append('file', new Blob([bytes], { type: mimeType }), `text4j-source.${mimeType.split('/')[1] || 'png'}`);
+    if (url.startsWith('/api/text4j/roboflow/convert') || url.startsWith('/api/text4j/structured3d/convert')) {
+      const apiKey = process.env.ROBOFLOW_WALL_API_KEY;
+      if (!apiKey) {
+        response.status(500).json({ success: false, error: 'ROBOFLOW_WALL_API_KEY is not set; add it to .env.local and restart the dev server.' });
+        return true;
+      }
+      const startedAt = Date.now();
+      const { base64 } = decodeImagePayload(request.body?.imageBase64);
+      const { extractRoboflowWallPolygons, convertRoboflowWallsToCenterlines } = await import('./roboflowWallConnector');
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30_000);
+      const timeout = setTimeout(() => controller.abort(), 45_000);
       try {
-        const structuredResponse = await fetch(`${STRUCTURED3D_BASE_URL}/api/convert/archai-candidates`, {
+        const workflowResponse = await fetch(`${ROBOFLOW_BASE_URL}/infer/workflows/${ROBOFLOW_WORKSPACE}/${ROBOFLOW_WORKFLOW_ID}`, {
           method: 'POST',
-          body: form,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ api_key: apiKey, use_cache: true, inputs: { image: { type: 'base64', value: base64 } } }),
           signal: controller.signal,
         });
-        const contentType = structuredResponse.headers.get('content-type') || '';
-        const payload = contentType.includes('application/json')
-          ? await structuredResponse.json()
-          : undefined;
-        if (!structuredResponse.ok) {
-          const routeHint = structuredResponse.status === 404
-            ? ' The running Structured3D service has not loaded the Text 4.0 J candidate API; restart that service on port 5000.'
-            : '';
-          response.status(structuredResponse.status).json({
+        const payload = (workflowResponse.headers.get('content-type') || '').includes('application/json')
+          ? await workflowResponse.json()
+          : await workflowResponse.text();
+        if (!workflowResponse.ok) {
+          response.status(workflowResponse.status).json({
             success: false,
-            error: payload?.error || `Structured3D candidate API returned HTTP ${structuredResponse.status}.${routeHint}`,
+            error: (payload as any)?.message || (payload as any)?.error || `Roboflow wall workflow returned HTTP ${workflowResponse.status}.`,
           });
           return true;
         }
-        response.status(structuredResponse.status).json(payload);
+        const detections = extractRoboflowWallPolygons(payload);
+        if (!(detections.imageWidth > 0 && detections.imageHeight > 0)) {
+          response.status(502).json({ success: false, error: 'The Roboflow workflow did not return source image dimensions.' });
+          return true;
+        }
+        const centerlines = convertRoboflowWallsToCenterlines(detections.polygons, {
+          maxWallThicknessPixels: Math.max(8, Math.min(detections.imageWidth, detections.imageHeight) * 0.045),
+        });
+        response.status(200).json({
+          success: true,
+          jobId: `roboflow-${Date.now()}`,
+          processingMs: Date.now() - startedAt,
+          sourceImage: { width: detections.imageWidth, height: detections.imageHeight },
+          archaiCandidateData: {
+            elements: [
+              ...centerlines.map(centerline => ({
+                id: centerline.id,
+                type: 'wall',
+                digitizationConfidence: centerline.confidence,
+                metadata: {
+                  roboflow: {
+                    geometryRole: 'centerline',
+                    geometryKind: centerline.geometryKind,
+                    planeId: centerline.polygonIndex,
+                    thicknessPixels: centerline.thicknessPixels,
+                    sourcePixelP1: centerline.p1,
+                    sourcePixelP2: centerline.p2,
+                  },
+                },
+              })),
+              ...detections.polygons.map((polygon, index) => ({
+                id: `roboflow-wall-outline-${index + 1}`,
+                type: 'wall',
+                digitizationConfidence: polygon.confidence,
+                metadata: { roboflow: { geometryRole: 'outline', planeId: index, polygon: polygon.points } },
+              })),
+            ],
+          },
+        });
       } finally {
         clearTimeout(timeout);
       }

@@ -84,13 +84,19 @@ export interface GeneratedData {
       durationMs?: number;
     };
     topologyRepairMode?: 'none' | 'junctions' | 'shell';
-    /** J-only audit of Structured3D wall candidates reconciled over the Local baseline. */
+    /** J-only audit of Roboflow wall candidates reconciled over the Local baseline. */
     structuredReconciliation?: {
-      provider: 'Structured3D';
+      provider: 'Roboflow';
+      mode: 'provider-primary' | 'local-primary' | 'repair';
       baselineWalls: number;
       structuredFaces: number;
       pairedCenterlines: number;
+      straightCandidates: number;
+      curvedCandidates: number;
+      providerComplete: boolean;
+      selectionReason: string;
       acceptedRepairs: number;
+      retainedLocalApertureHosts: number;
       rejectedUnpaired: number;
       rejectedUnsupported: number;
       rejectedModeConflict: number;
