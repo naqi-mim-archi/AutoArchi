@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/buildApiFunction.mjs",
+    "build:api": "node scripts/buildApiFunction.mjs",
     "preview": "vite preview",
     "lint": "tsc --noEmit",
     "test:ui-density": "node scripts/testUiDensity.mjs",

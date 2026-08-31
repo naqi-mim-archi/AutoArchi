@@ -1,31 +1,36 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from '@google/genai';
-import { routeText2PlanApiRequest } from '../services/text2planBackend';
-import { routeText4dApiRequest } from '../services/text4dBackend';
-import { routeText4eApiRequest } from '../services/text4eBackend';
-import { routeText4fApiRequest } from '../services/text4fBackend';
-import { routeText4gApiRequest } from '../services/text4gBackend';
-import { routeText4hApiRequest } from '../services/text4hBackend';
-import { routeText4jApiRequest } from '../services/text4jBackend';
-import { routeSmartText2PlanApiRequest } from '../services/smartText2planBackend';
-import { routeAiRenderApiRequest } from '../services/aiRender/backend';
-import { routeAutoPlanApiRequest } from '../services/autoPlan/backend/routes';
-import { routeRevitExportApiRequest } from '../services/revitExport/backend/revitExportApiRoutes';
-import { ApsRevitExportBackend } from '../services/revitExport/backend/apsRevitExportBackend';
-import { createKvRevitExportJobStore } from '../services/revitExport/backend/kvRevitExportJobStore';
-import { routeApsRevitImportApiRequest } from '../services/apsRevitImport/backend/apsRevitImportApiRoutes';
-import { ApsRevitImportBackend } from '../services/apsRevitImport/backend/apsRevitImportBackend';
-import { createKvApsRevitImportJobStore } from '../services/apsRevitImport/backend/kvApsRevitImportJobStore';
+import { routeText2PlanApiRequest } from './text2planBackend';
+import { routeText4dApiRequest } from './text4dBackend';
+import { routeText4eApiRequest } from './text4eBackend';
+import { routeText4fApiRequest } from './text4fBackend';
+import { routeText4gApiRequest } from './text4gBackend';
+import { routeText4hApiRequest } from './text4hBackend';
+import { routeText4jApiRequest } from './text4jBackend';
+import { routeSmartText2PlanApiRequest } from './smartText2planBackend';
+import { routeAiRenderApiRequest } from './aiRender/backend';
+import { routeAutoPlanApiRequest } from './autoPlan/backend/routes';
+import { routeRevitExportApiRequest } from './revitExport/backend/revitExportApiRoutes';
+import { ApsRevitExportBackend } from './revitExport/backend/apsRevitExportBackend';
+import { createKvRevitExportJobStore } from './revitExport/backend/kvRevitExportJobStore';
+import { routeApsRevitImportApiRequest } from './apsRevitImport/backend/apsRevitImportApiRoutes';
+import { ApsRevitImportBackend } from './apsRevitImport/backend/apsRevitImportBackend';
+import { createKvApsRevitImportJobStore } from './apsRevitImport/backend/kvApsRevitImportJobStore';
 
 // A single catch-all Vercel function serving every API route. Vercel's Hobby plan caps
 // deployments at 12 serverless functions — one file per route family would have meant 13.
 // This mirrors the exact dispatch logic already used by vite.config.js's dev middleware,
 // just consolidated into one Lambda; none of the underlying route handlers changed.
 //
-// Every backend is imported statically on purpose. `await import('../services/…')` left the
-// specifier unresolved in the deployed bundle, so the Lambda died at runtime with
-// "Cannot find module '/var/task/services/text2planBackend'" — Node's ESM resolver does not
-// retry extensionless paths. Static imports get bundled at build time instead.
+// This file is the SOURCE of that function, not the deployed file. Vercel does not bundle
+// functions in the api/ directory — it compiles them in place and traces their imports — and
+// with package.json `"type": "module"` Node's ESM resolver refuses every extensionless
+// relative specifier, which is what every import below (and every import inside services/)
+// is. Deploying this file directly died with "Cannot find module
+// '/var/task/services/text2planBackend'". So `npm run build:api` pre-bundles this module into
+// a single self-contained api/index.js — the only file Vercel ever sees — leaving nothing but
+// bare npm specifiers for the runtime to resolve. Edit this file, never api/index.js, and run
+// `npm run build:api` (npm run build does it too) so the committed bundle stays in step.
 type ApiRequestShape = { method?: string; url?: string; body?: any };
 
 // vercel.json rewrites every /api/* request here as `/api?__path=/api/<original path>`,
