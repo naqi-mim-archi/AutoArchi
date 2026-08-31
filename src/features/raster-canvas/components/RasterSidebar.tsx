@@ -163,7 +163,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
       <div className="px-4 py-3 border-b border-slate-800 bg-slate-950/80 flex flex-col gap-2.5 shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles size={16} className="text-indigo-400" />
+            <Sparkles size={16} className="text-blue-400" />
             <h3 className="text-xs font-bold text-slate-100 tracking-wide">Rendering Workflows</h3>
           </div>
         </div>
@@ -176,7 +176,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
         <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-2.5 space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400">Image Source</span>
-            <span className="text-[9px] font-mono text-indigo-400">
+            <span className="text-[9px] font-mono text-blue-400">
               {store.width} × {store.height}px
             </span>
           </div>
@@ -184,16 +184,16 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={onUploadClick}
-              className="flex-1 py-2 px-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:border-indigo-500/60"
+              className="flex-1 py-2 px-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:border-blue-500/60"
             >
-              <Upload size={13} className="text-indigo-400" />
+              <Upload size={13} className="text-blue-400" />
               <span>{hasUserImage ? 'Replace Image' : 'Upload Image / Plan'}</span>
             </button>
 
             {availableStudioImages.length > 0 && (
               <button
                 onClick={onOpenStudioModal}
-                className="py-2 px-2.5 bg-indigo-950/50 hover:bg-indigo-900/60 text-indigo-300 border border-indigo-800/50 rounded-xl text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-all"
+                className="py-2 px-2.5 bg-blue-950/50 hover:bg-blue-900/60 text-blue-300 border border-blue-800/50 rounded-xl text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-all"
                 title={`Load from render outputs (${availableStudioImages.length})`}
               >
                 <ImageIcon size={13} />
@@ -223,7 +223,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                   }}
                   className={`py-2 px-0.5 rounded-lg text-[10px] font-bold flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
                   }`}
                   title={tool.label}
@@ -279,7 +279,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
           {store.activeTool === 'rotate' && store.geometryMode === 'crop' && (
             <div className="space-y-3.5">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase font-bold text-indigo-300">Crop & Aspect Ratio</span>
+                <span className="text-[10px] uppercase font-bold text-blue-300">Crop & Aspect Ratio</span>
                 <span className="text-[9px] font-mono text-slate-400">
                   {store.cropState ? `${Math.round(store.cropState.cropRect.width)} × ${Math.round(store.cropState.cropRect.height)}` : `${store.width} × ${store.height}`} px
                 </span>
@@ -311,7 +311,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                         onClick={() => store.setCropAspectRatio(preset.id)}
                         className={`py-1.5 px-2 rounded-lg text-[10px] font-semibold transition-all cursor-pointer truncate ${
                           isSelected
-                            ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30 font-bold'
+                            ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 font-bold'
                             : 'bg-slate-900/80 text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-800'
                         }`}
                         title={preset.label}
@@ -350,7 +350,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                   className="py-1.5 px-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-lg text-[10px] font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
                   title="Swap orientation between Landscape and Portrait"
                 >
-                  <Ratio size={13} className="text-indigo-400" />
+                  <Ratio size={13} className="text-blue-400" />
                   <span>Flip Ratio (W↔H)</span>
                 </button>
 
@@ -468,7 +468,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                     type="button"
                     onClick={handleGenerateOutpaint}
                     disabled={isOutpainting || !outpaintPrompt.trim()}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 px-3 py-2.5 text-xs font-bold text-white shadow-lg shadow-sky-900/30 transition-all hover:from-sky-500 hover:to-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 px-3 py-2.5 text-xs font-bold text-white shadow-lg shadow-sky-900/30 transition-all hover:from-sky-500 hover:to-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <Sparkles size={14} className={isOutpainting ? 'animate-pulse' : ''} />
                     {isOutpainting ? 'Generating Outpaint...' : 'Generate Outpaint'}
@@ -494,9 +494,9 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
           {store.activeTool === 'select' && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase font-bold text-indigo-300">Selection Modes</span>
+                <span className="text-[10px] uppercase font-bold text-blue-300">Selection Modes</span>
                 {store.selection.active && (
-                  <span className="text-[9px] bg-indigo-950 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-800/40">
+                  <span className="text-[9px] bg-blue-950 text-blue-300 px-1.5 py-0.5 rounded border border-blue-800/40">
                     Active Mask
                   </span>
                 )}
@@ -517,7 +517,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                       onClick={() => store.setSelectSubTool(sub.id as SelectSubTool)}
                       className={`p-2 rounded-lg text-[11px] font-semibold flex items-center gap-2 transition-all cursor-pointer ${
                         isSel
-                          ? 'bg-slate-800 text-indigo-400 border border-indigo-500/50 shadow-sm'
+                          ? 'bg-slate-800 text-blue-400 border border-blue-500/50 shadow-sm'
                           : 'bg-slate-900/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 border border-transparent'
                       }`}
                     >
@@ -533,7 +533,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                 <div className="space-y-1.5 pt-1 border-t border-slate-800">
                   <div className="flex justify-between items-center text-[10px] text-slate-400">
                     <span>Brush Radius</span>
-                    <span className="font-mono text-indigo-300 font-bold">{store.brushSize}px</span>
+                    <span className="font-mono text-blue-300 font-bold">{store.brushSize}px</span>
                   </div>
                   <input
                     type="range"
@@ -541,7 +541,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                     max="120"
                     value={store.brushSize}
                     onChange={e => store.setBrushSize(Number(e.target.value))}
-                    className="w-full accent-indigo-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+                    className="w-full accent-blue-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
                   />
                 </div>
               )}
@@ -552,7 +552,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                   <button
                     type="button"
                     onClick={() => onOpenAiEdit()}
-                    className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-3 py-2 text-[11px] font-bold text-white shadow-lg shadow-indigo-600/20 hover:from-indigo-500 hover:to-purple-500"
+                    className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-600 px-3 py-2 text-[11px] font-bold text-white shadow-lg shadow-blue-600/20 hover:from-blue-500 hover:to-blue-500"
                   >
                     <Sparkles size={13} />
                     AI Inpaint on Selection
@@ -579,7 +579,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
           {/* Tool: SCRIBBLE */}
           {store.activeTool === 'draw' && (
             <div className="space-y-3">
-              <span className="text-[10px] uppercase font-bold text-indigo-300 block">Scribble Tools</span>
+              <span className="text-[10px] uppercase font-bold text-blue-300 block">Scribble Tools</span>
               <div className="grid grid-cols-2 gap-1.5">
                 {[
                   { id: 'pen', label: 'Pen', size: 4, opacity: 100 },
@@ -598,7 +598,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                       }}
                       className={`p-2 rounded-lg text-[11px] font-semibold flex items-center gap-2 transition-all cursor-pointer ${
                         isSel
-                          ? 'bg-slate-800 text-indigo-400 border border-indigo-500/50'
+                          ? 'bg-slate-800 text-blue-400 border border-blue-500/50'
                           : 'bg-slate-900/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 border border-transparent'
                       }`}
                     >
@@ -612,7 +612,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
               <div className="space-y-1.5 pt-1 border-t border-slate-800">
                 <div className="flex justify-between items-center text-[10px] text-slate-400">
                   <span>Stroke Size</span>
-                  <span className="font-mono text-indigo-300 font-bold">{store.brushSize}px</span>
+                  <span className="font-mono text-blue-300 font-bold">{store.brushSize}px</span>
                 </div>
                 <input
                   type="range"
@@ -620,7 +620,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                   max="80"
                   value={store.brushSize}
                   onChange={e => store.setBrushSize(Number(e.target.value))}
-                  className="w-full accent-indigo-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+                  className="w-full accent-blue-500 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
                 />
               </div>
 
@@ -638,7 +638,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                         }}
                         style={{ backgroundColor: c }}
                         className={`w-6 h-6 rounded-full border transition-all cursor-pointer ${
-                          store.brushColor === c ? 'scale-125 border-indigo-400 shadow-md ring-2 ring-indigo-500/40' : 'border-slate-700'
+                          store.brushColor === c ? 'scale-125 border-blue-400 shadow-md ring-2 ring-blue-500/40' : 'border-slate-700'
                         }`}
                       />
                     ))}
@@ -655,7 +655,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
 
               {/* Scribble to Render */}
               <div className="space-y-2 pt-3 border-t border-slate-800">
-                <span className="text-[10px] uppercase font-bold text-indigo-300 block">Scribble to Render</span>
+                <span className="text-[10px] uppercase font-bold text-blue-300 block">Scribble to Render</span>
                 <p className="text-[10px] text-slate-400 leading-relaxed">
                   Scribble a rough guide on a separate layer, then render it as a realistic element.
                 </p>
@@ -676,7 +676,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                   value={aiPrompt}
                   onChange={e => setAiPrompt(e.target.value)}
                   placeholder="Optional: describe it, or leave blank to infer all items"
-                  className="w-full rounded-lg border border-slate-800 bg-slate-900 p-2 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-lg border border-slate-800 bg-slate-900 p-2 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
                 <button
                   type="button"
@@ -768,7 +768,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                       scribbleGuide.toDataURL('image/png'),
                     );
                   }}
-                  className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-3 py-2 text-xs font-bold text-white shadow-lg shadow-purple-900/20 hover:from-purple-500 hover:to-indigo-500"
+                  className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-600 px-3 py-2 text-xs font-bold text-white shadow-lg shadow-blue-900/20 hover:from-blue-500 hover:to-blue-500"
                 >
                   <Sparkles size={14} />
                   Render Scribble
@@ -781,11 +781,11 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
           {/* Tool: AI EDIT */}
           {store.activeTool === 'ai_edit' && (
             <div className="space-y-3">
-              <span className="block text-[10px] font-bold uppercase text-indigo-300">AI Inpainting Task</span>
+              <span className="block text-[10px] font-bold uppercase text-blue-300">AI Inpainting Task</span>
               <select
                 value={aiTask}
                 onChange={e => setAiTask(e.target.value as AiActionType)}
-                className="w-full cursor-pointer rounded-lg border border-slate-800 bg-slate-900 p-2 text-xs font-semibold text-slate-200 focus:ring-1 focus:ring-indigo-500"
+                className="w-full cursor-pointer rounded-lg border border-slate-800 bg-slate-900 p-2 text-xs font-semibold text-slate-200 focus:ring-1 focus:ring-blue-500"
               >
                 <option value="remove">Remove Object</option>
                 <option value="replace">Replace Element</option>
@@ -798,7 +798,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                 onChange={e => setAiPrompt(e.target.value)}
                 rows={2}
                 placeholder={aiTask === 'remove' ? 'Describe the object to remove...' : 'Describe your architectural edit...'}
-                className="w-full resize-none rounded-lg border border-slate-800 bg-slate-900 p-2 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full resize-none rounded-lg border border-slate-800 bg-slate-900 p-2 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
               <div className="flex max-h-24 flex-wrap gap-1 overflow-y-auto">
                 {ARCHITECTURAL_PRESETS.slice(0, 10).map(preset => (
@@ -806,7 +806,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                     key={preset.id}
                     type="button"
                     onClick={() => setAiPrompt(preset.promptSnippet)}
-                    className="rounded-md border border-slate-800 bg-slate-900 px-2 py-1 text-[10px] text-slate-300 hover:border-indigo-700 hover:bg-indigo-950"
+                    className="rounded-md border border-slate-800 bg-slate-900 px-2 py-1 text-[10px] text-slate-300 hover:border-blue-700 hover:bg-blue-950"
                   >
                     {preset.label}
                   </button>
@@ -815,7 +815,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
               <button
                 type="button"
                 onClick={() => onOpenAiEdit(aiPrompt, aiTask)}
-                className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-3 py-2.5 text-xs font-bold text-white shadow-xl shadow-indigo-600/30 hover:from-indigo-500 hover:to-purple-500"
+                className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-600 px-3 py-2.5 text-xs font-bold text-white shadow-xl shadow-blue-600/30 hover:from-blue-500 hover:to-blue-500"
               >
                 <Sparkles size={14} />
                 Open AI Edit
@@ -853,14 +853,14 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
           {/* Tool: TEXT */}
           {store.activeTool === 'text' && (
             <div className="space-y-4">
-              <span className="text-[10px] uppercase font-bold text-indigo-300 block">Text Typography</span>
+              <span className="text-[10px] uppercase font-bold text-blue-300 block">Text Typography</span>
               
               <div className="space-y-2">
                 <span className="text-[10px] text-slate-400">Font Family</span>
                 <select
                   value={store.textProps.fontFamily}
                   onChange={e => store.setTextProps({ fontFamily: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none"
                 >
                   {['Inter', 'Roboto', 'Open Sans', 'Montserrat', 'Playfair Display', 'Lora', 'Poppins', 'Raleway', 'Oswald', 'Source Sans Pro', 'Merriweather', 'PT Sans', 'Nunito', 'Work Sans', 'DM Sans'].map(f => (
                     <option key={f} value={f}>{f}</option>
@@ -874,7 +874,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                   <select
                     value={store.textProps.fontWeight}
                     onChange={e => store.setTextProps({ fontWeight: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none"
                   >
                     <option value="300">Light (300)</option>
                     <option value="400">Regular (400)</option>
@@ -891,7 +891,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                     min="8" max="200"
                     value={store.textProps.fontSize}
                     onChange={e => store.setTextProps({ fontSize: Number(e.target.value) })}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -943,7 +943,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                   <select
                     value={store.textProps.textTransform}
                     onChange={e => store.setTextProps({ textTransform: e.target.value as any })}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                    className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none"
                   >
                     <option value="none">None</option>
                     <option value="uppercase">UPPERCASE</option>
@@ -963,12 +963,12 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
           {store.activeTool === 'layers' && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase font-bold text-indigo-300">Layers Stack</span>
+                <span className="text-[10px] uppercase font-bold text-blue-300">Layers Stack</span>
                 <div className="flex gap-1">
                   <button onClick={store.createLayerGroup} className="flex items-center gap-1 rounded bg-slate-800 px-2 py-1 text-[9px] font-bold text-slate-300 hover:text-white" title="Group checked layers">
                     <Folder size={10} /> Group
                   </button>
-                  <button onClick={() => store.addLayer('New Layer', 'draw')} className="flex items-center gap-1 rounded bg-indigo-600/30 px-2 py-1 text-[9px] font-bold text-indigo-300 hover:bg-indigo-600 hover:text-white">
+                  <button onClick={() => store.addLayer('New Layer', 'draw')} className="flex items-center gap-1 rounded bg-blue-600/30 px-2 py-1 text-[9px] font-bold text-blue-300 hover:bg-blue-600 hover:text-white">
                     <Plus size={10} /> Add
                   </button>
                 </div>
@@ -979,7 +979,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                 <div className="space-y-2 bg-slate-900/80 p-2 rounded-lg border border-slate-800">
                   <div className="flex justify-between items-center text-[10px] text-slate-400">
                     <span>Opacity</span>
-                    <span className="font-mono text-indigo-300">{Math.round(activeLayer.opacity * 100)}%</span>
+                    <span className="font-mono text-blue-300">{Math.round(activeLayer.opacity * 100)}%</span>
                   </div>
                   <input
                     type="range"
@@ -989,7 +989,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                     onChange={e => store.setLayerOpacity(activeLayer.id, Number(e.target.value) / 100)}
                     onMouseUp={() => store.pushHistory('Layer Opacity')}
                     onTouchEnd={() => store.pushHistory('Layer Opacity')}
-                    className="w-full accent-indigo-500 h-1 bg-slate-800 rounded cursor-pointer"
+                    className="w-full accent-blue-500 h-1 bg-slate-800 rounded cursor-pointer"
                   />
                   <div className="flex justify-between items-center pt-1 text-[10px]">
                     <span className="text-slate-400">Blend Mode</span>
@@ -1025,7 +1025,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                       onClick={() => store.setActiveLayerId(layer.id)}
                       className={`flex items-center justify-between gap-1 rounded-lg border p-2 transition-all cursor-pointer ${layer.groupId ? 'ml-4' : ''} ${
                         isCurrent
-                          ? 'bg-slate-800 border-indigo-500 text-slate-100 shadow-sm'
+                          ? 'bg-slate-800 border-blue-500 text-slate-100 shadow-sm'
                           : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
                       }`}
                     >
@@ -1036,7 +1036,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                             checked={store.selectedLayerIds.includes(layer.id)}
                             onChange={() => store.toggleLayerSelected(layer.id)}
                             onClick={event => event.stopPropagation()}
-                            className="h-3 w-3 accent-indigo-500"
+                            className="h-3 w-3 accent-blue-500"
                             title="Select for grouping"
                           />
                         )}
@@ -1069,7 +1069,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                             e.stopPropagation();
                             store.duplicateLayer(layer.id);
                           }}
-                          className="p-0.5 text-slate-500 hover:text-indigo-300"
+                          className="p-0.5 text-slate-500 hover:text-blue-300"
                           title="Duplicate"
                         >
                           <Copy size={11} />
@@ -1336,7 +1336,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
           {/* Tool: TRANSFORM */}
           {store.activeTool === 'transform' && (
             <div className="space-y-4">
-              <span className="text-[10px] uppercase font-bold text-indigo-300 block">Transform & Placement</span>
+              <span className="text-[10px] uppercase font-bold text-blue-300 block">Transform & Placement</span>
 
               {/* Scale Canvas */}
               <div className="space-y-2 pt-2 border-t border-slate-800">
@@ -1344,10 +1344,10 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
                   <span>Scale Canvas</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <button onClick={() => store.scaleAllLayers(0.5)} className="py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-lg flex items-center justify-center gap-1 text-slate-300 hover:text-indigo-400 transition-colors text-[10px] font-bold">
+                  <button onClick={() => store.scaleAllLayers(0.5)} className="py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-lg flex items-center justify-center gap-1 text-slate-300 hover:text-blue-400 transition-colors text-[10px] font-bold">
                     <Scaling size={12} /> 50%
                   </button>
-                  <button onClick={() => store.scaleAllLayers(2.0)} className="py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-lg flex items-center justify-center gap-1 text-slate-300 hover:text-indigo-400 transition-colors text-[10px] font-bold">
+                  <button onClick={() => store.scaleAllLayers(2.0)} className="py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-lg flex items-center justify-center gap-1 text-slate-300 hover:text-blue-400 transition-colors text-[10px] font-bold">
                     <Scaling size={12} /> 200%
                   </button>
                 </div>
@@ -1362,7 +1362,7 @@ export const RasterSidebar: React.FC<RasterSidebarProps> = ({
       <div className="p-3 border-t border-slate-800 bg-slate-950/80 space-y-2 shrink-0">
         <button
           onClick={onExportClick}
-          className="w-full py-2 px-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/25 cursor-pointer transition-all"
+          className="w-full py-2 px-3 bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-500 hover:to-blue-500 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-blue-600/25 cursor-pointer transition-all"
         >
           <Download size={13} />
           <span>Export Render / Image</span>

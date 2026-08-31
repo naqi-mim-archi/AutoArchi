@@ -150,7 +150,7 @@ export const RevitExporterDialog: React.FC<RevitExporterDialogProps> = ({
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-2">
-            <HardDriveDownload size={21} className="text-violet-700" />
+            <HardDriveDownload size={21} className="text-blue-700" />
             <div>
               <h2 className="font-black text-lg text-slate-900">Export Revit Project (.RVT) - Beta</h2>
               <p className="text-xs text-slate-500">Direct project data to APS Revit Automation workflow</p>
@@ -233,7 +233,7 @@ export const RevitExporterDialog: React.FC<RevitExporterDialogProps> = ({
                     key={item.id}
                     disabled={isBusy}
                     onClick={() => updateOption('levelScope', item.id as RevitExportOptions['levelScope'])}
-                    className={`rounded-xl border px-3 py-2 text-xs font-black transition-colors disabled:opacity-60 ${options.levelScope === item.id ? 'border-violet-600 bg-violet-50 text-violet-800' : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'}`}
+                    className={`rounded-xl border px-3 py-2 text-xs font-black transition-colors disabled:opacity-60 ${options.levelScope === item.id ? 'border-blue-600 bg-blue-50 text-blue-800' : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'}`}
                   >
                     {item.label}
                   </button>
@@ -249,7 +249,7 @@ export const RevitExporterDialog: React.FC<RevitExporterDialogProps> = ({
                         checked={options.selectedLevelIds.includes(level.id)}
                         onChange={() => toggleSelectedLevel(level.id)}
                         disabled={isBusy}
-                        className="h-4 w-4 accent-violet-700"
+                        className="h-4 w-4 accent-blue-700"
                       />
                     </label>
                   ))}
@@ -323,7 +323,7 @@ export const RevitExporterDialog: React.FC<RevitExporterDialogProps> = ({
                     ) : error || job?.status === 'failed' ? (
                       <AlertTriangle size={18} className="text-red-700" />
                     ) : (
-                      <Loader2 size={18} className="text-violet-700 animate-spin" />
+                      <Loader2 size={18} className="text-blue-700 animate-spin" />
                     )}
                     <div>
                       <div className="font-black text-sm text-slate-900">{job?.status || (isStarting ? 'preparing_manifest' : 'failed')}</div>
@@ -367,7 +367,7 @@ export const RevitExporterDialog: React.FC<RevitExporterDialogProps> = ({
             <button
               onClick={handleStart}
               disabled={isBusy || !canStart}
-              className="px-5 py-2.5 bg-violet-700 hover:bg-violet-800 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-black rounded-xl text-sm transition-colors flex items-center gap-2"
+              className="px-5 py-2.5 bg-blue-700 hover:bg-blue-800 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-black rounded-xl text-sm transition-colors flex items-center gap-2"
             >
               {isBusy ? <Loader2 size={16} className="animate-spin" /> : <HardDriveDownload size={16} />}
               {isBusy ? progressText[status] || 'Working...' : 'Start RVT Export'}
@@ -403,7 +403,7 @@ const Toggle = ({ label, checked, disabled, onChange }: { label: string; checked
       checked={checked}
       disabled={disabled}
       onChange={(event) => onChange(event.target.checked)}
-      className="h-4 w-4 accent-violet-700"
+      className="h-4 w-4 accent-blue-700"
     />
   </label>
 );

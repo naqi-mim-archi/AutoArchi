@@ -187,7 +187,7 @@ export const AiEditModal: React.FC<AiEditModalProps> = ({
         {/* Header */}
         <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-indigo-600/20 text-indigo-400 rounded-xl border border-indigo-500/30">
+            <div className="p-2 bg-blue-600/20 text-blue-400 rounded-xl border border-blue-500/30">
               <Sparkles size={16} />
             </div>
             <div>
@@ -220,7 +220,7 @@ export const AiEditModal: React.FC<AiEditModalProps> = ({
                 }}
                 className={`py-2 px-3 rounded-xl text-xs font-semibold flex flex-col items-center gap-1 transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
                 }`}
               >
@@ -233,7 +233,7 @@ export const AiEditModal: React.FC<AiEditModalProps> = ({
 
         {/* Main Body */}
         <div className="p-5 flex-1 overflow-y-auto space-y-4">
-          <p className="text-xs text-indigo-300/90 font-medium">
+          <p className="text-xs text-blue-300/90 font-medium">
             {tabs.find(t => t.id === activeTab)?.description}
           </p>
 
@@ -262,7 +262,7 @@ export const AiEditModal: React.FC<AiEditModalProps> = ({
                     ? 'Optional: describe the drawing, or leave blank to infer all items'
                     : 'e.g. Light beige travertine stone or smoked oak wood'
                 }
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-sans resize-none"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500 font-sans resize-none"
               />
             </div>
           )}
@@ -337,7 +337,7 @@ export const AiEditModal: React.FC<AiEditModalProps> = ({
                 )}
               </div>
 
-              <div className="relative rounded-xl overflow-hidden border border-indigo-500/40 bg-slate-950 aspect-video flex items-center justify-center">
+              <div className="relative rounded-xl overflow-hidden border border-blue-500/40 bg-slate-950 aspect-video flex items-center justify-center">
                 <img src={previewResult} alt="AI Result Preview" className="max-h-full max-w-full object-contain" />
               </div>
 
@@ -385,7 +385,7 @@ export const AiEditModal: React.FC<AiEditModalProps> = ({
               <button
                 onClick={handleGenerate}
                 disabled={isLoading}
-                className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-indigo-600/20 flex items-center gap-2 transition-all cursor-pointer"
+                className="bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-blue-600/20 flex items-center gap-2 transition-all cursor-pointer"
               >
                 {isLoading ? (
                   <>

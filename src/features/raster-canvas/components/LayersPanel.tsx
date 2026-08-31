@@ -52,7 +52,7 @@ export const LayersPanel: React.FC<LayersPanelProps> = ({
       {/* Header */}
       <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
         <div className="flex items-center gap-2">
-          <Layers size={14} className="text-indigo-400" />
+          <Layers size={14} className="text-blue-400" />
           <span className="text-xs font-bold text-slate-200">Layers</span>
           <span className="bg-slate-800 text-slate-400 text-[10px] font-mono px-1.5 py-0.5 rounded-full font-bold">
             {layers.length}
@@ -62,7 +62,7 @@ export const LayersPanel: React.FC<LayersPanelProps> = ({
         <div className="flex items-center gap-1">
           <button
             onClick={onAddLayer}
-            className="p-1 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded-lg transition-colors cursor-pointer"
+            className="p-1 bg-blue-600/20 hover:bg-blue-600 text-blue-300 hover:text-white rounded-lg transition-colors cursor-pointer"
             title="Add Layer"
           >
             <Plus size={14} />
@@ -88,7 +88,7 @@ export const LayersPanel: React.FC<LayersPanelProps> = ({
               max="100"
               value={Math.round(activeLayer.opacity * 100)}
               onChange={e => onOpacityChange(activeLayer.id, Number(e.target.value) / 100)}
-              className="flex-1 accent-indigo-500 h-1 cursor-pointer"
+              className="flex-1 accent-blue-500 h-1 cursor-pointer"
             />
             <span className="text-[10px] font-mono text-slate-300 w-8 text-right">
               {Math.round(activeLayer.opacity * 100)}%
@@ -126,7 +126,7 @@ export const LayersPanel: React.FC<LayersPanelProps> = ({
               onClick={() => onSelectLayer(layer.id)}
               className={`p-2 rounded-xl flex items-center justify-between gap-2 border transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-slate-800/90 border-indigo-500/60 shadow-sm'
+                  ? 'bg-slate-800/90 border-blue-500/60 shadow-sm'
                   : 'bg-slate-950/60 border-slate-800/80 hover:bg-slate-800/40'
               }`}
             >

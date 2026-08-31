@@ -875,7 +875,7 @@ const ToolbarButton: React.FC<ToolbarButtonProps> = ({ onClick, onPresetSelect, 
                   setIsOpen(false);
                   onOpen3DGenerator?.();
                 }}
-                className="h-10 px-3 rounded-lg border border-indigo-200 bg-indigo-50 flex items-center justify-center gap-2 text-xs font-bold text-indigo-700 hover:bg-indigo-100 transition-colors"
+                className="h-10 px-3 rounded-lg border border-blue-200 bg-blue-50 flex items-center justify-center gap-2 text-xs font-bold text-blue-700 hover:bg-blue-100 transition-colors"
               >
                 <Sparkles size={16} />
                 3D Generator

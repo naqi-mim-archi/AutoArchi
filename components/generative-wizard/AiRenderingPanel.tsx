@@ -1081,7 +1081,7 @@ export const AiRenderingPanel: React.FC<AiRenderingPanelProps> = ({ initialHub =
       {/* Top Header Bar */}
       <div className="bg-slate-950 border-b border-slate-800 px-6 py-3 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
-          <Sparkles className="text-indigo-400" size={20} />
+          <Sparkles className="text-blue-400" size={20} />
           <h2 className="font-bold text-sm text-slate-100 tracking-wide">{initialHub === 'gen_3d' ? '3D Generator' : 'Render Canvas'}</h2>
         </div>
       </div>

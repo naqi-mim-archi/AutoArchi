@@ -57,7 +57,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({ isOpen, onClose, onSav
         
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center shrink-0">
-          <div className="flex items-center gap-2 text-indigo-600">
+          <div className="flex items-center gap-2 text-blue-600">
             <Minimize size={20} />
             <h2 className="font-bold text-lg text-slate-900">Custom Block Editor</h2>
           </div>
@@ -74,7 +74,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({ isOpen, onClose, onSav
               type="text" 
               value={blockName}
               onChange={(e) => setBlockName(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -86,7 +86,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({ isOpen, onClose, onSav
                 step="0.1"
                 value={width}
                 onChange={(e) => setWidth(parseFloat(e.target.value) || 1.0)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div className="space-y-1">
@@ -96,7 +96,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({ isOpen, onClose, onSav
                 step="0.1"
                 value={depth}
                 onChange={(e) => setDepth(parseFloat(e.target.value) || 1.0)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div className="space-y-1">
@@ -106,7 +106,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({ isOpen, onClose, onSav
                 step="0.1"
                 value={height}
                 onChange={(e) => setHeight(parseFloat(e.target.value) || 1.0)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -143,7 +143,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({ isOpen, onClose, onSav
               />
               <button 
                 onClick={() => fileInputRef.current?.click()}
-                className="flex-1 flex items-center justify-center gap-2 py-3 border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-2xl text-xs font-bold text-slate-600 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 py-3 border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-2xl text-xs font-bold text-slate-600 transition-colors"
               >
                 <Upload size={16} /> Import Wavefront .obj
               </button>
@@ -156,7 +156,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({ isOpen, onClose, onSav
           <button onClick={onClose} className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition-colors">
             Cancel
           </button>
-          <button onClick={handleSave} className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/20 transition-colors">
+          <button onClick={handleSave} className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 transition-colors">
             Create Block
           </button>
         </div>

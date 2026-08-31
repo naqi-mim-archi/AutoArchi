@@ -99,7 +99,7 @@ export const RasterToolbar: React.FC<RasterToolbarProps> = ({
               onClick={() => setActiveTool(tool.id)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
               }`}
               title={tool.label}
@@ -115,7 +115,7 @@ export const RasterToolbar: React.FC<RasterToolbarProps> = ({
       <div className="flex-1 flex items-center gap-3 overflow-x-auto scrollbar-none">
         {activeTool === 'crop' && (
           <div className="flex items-center gap-2 text-xs text-slate-300">
-            <span className="text-[10px] uppercase font-bold text-indigo-400 mr-1">Crop Mode:</span>
+            <span className="text-[10px] uppercase font-bold text-blue-400 mr-1">Crop Mode:</span>
             <span className="text-[11px] text-slate-400">
               Drag handles on canvas to crop. Press <kbd className="px-1 py-0.5 bg-slate-800 rounded text-[10px] text-slate-200">Enter</kbd> to apply.
             </span>
@@ -138,7 +138,7 @@ export const RasterToolbar: React.FC<RasterToolbarProps> = ({
                   onClick={() => setSelectSubTool(sub.id as SelectSubTool)}
                   className={`px-2 py-1 rounded-md text-[11px] font-medium flex items-center gap-1 transition-all cursor-pointer ${
                     selectSubTool === sub.id
-                      ? 'bg-slate-800 text-indigo-400 border border-indigo-500/30'
+                      ? 'bg-slate-800 text-blue-400 border border-blue-500/30'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
                   }`}
                 >
@@ -157,7 +157,7 @@ export const RasterToolbar: React.FC<RasterToolbarProps> = ({
                   max="120"
                   value={brushSize}
                   onChange={e => setBrushSize(Number(e.target.value))}
-                  className="w-20 accent-indigo-500 h-1 cursor-pointer"
+                  className="w-20 accent-blue-500 h-1 cursor-pointer"
                 />
                 <span className="text-[10px] font-mono text-slate-400 w-8">{brushSize}px</span>
               </div>
@@ -174,7 +174,7 @@ export const RasterToolbar: React.FC<RasterToolbarProps> = ({
                   setBrushSize(4);
                 }}
                 className={`px-2 py-1 rounded text-[11px] font-medium flex items-center gap-1 cursor-pointer ${
-                  drawSubTool === 'pen' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'
+                  drawSubTool === 'pen' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
                 <Pencil size={12} />
@@ -183,7 +183,7 @@ export const RasterToolbar: React.FC<RasterToolbarProps> = ({
               <button
                 onClick={() => setDrawSubTool('eraser')}
                 className={`px-2 py-1 rounded text-[11px] font-medium flex items-center gap-1 cursor-pointer ${
-                  drawSubTool === 'eraser' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200'
+                  drawSubTool === 'eraser' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
                 <Eraser size={12} />
@@ -200,7 +200,7 @@ export const RasterToolbar: React.FC<RasterToolbarProps> = ({
                 max="120"
                 value={brushSize}
                 onChange={e => setBrushSize(Number(e.target.value))}
-                className="w-20 accent-indigo-500 h-1 cursor-pointer"
+                className="w-20 accent-blue-500 h-1 cursor-pointer"
               />
               <span className="font-mono text-[10px] text-slate-400 w-6">{brushSize}px</span>
             </div>
@@ -262,10 +262,10 @@ export const RasterToolbar: React.FC<RasterToolbarProps> = ({
         {/* Upload Image Button */}
         <button
           onClick={onUploadClick}
-          className="bg-slate-950 hover:bg-slate-800 text-slate-200 border border-slate-800 hover:border-indigo-600/60 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+          className="bg-slate-950 hover:bg-slate-800 text-slate-200 border border-slate-800 hover:border-blue-600/60 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
           title="Upload image from computer to edit"
         >
-          <Upload size={13} className="text-indigo-400" />
+          <Upload size={13} className="text-blue-400" />
           <span>Upload</span>
         </button>
 
@@ -273,10 +273,10 @@ export const RasterToolbar: React.FC<RasterToolbarProps> = ({
         {onLoadFromStudioClick && (
           <button
             onClick={onLoadFromStudioClick}
-            className="bg-slate-950 hover:bg-slate-800 text-slate-200 border border-slate-800 hover:border-purple-600/60 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+            className="bg-slate-950 hover:bg-slate-800 text-slate-200 border border-slate-800 hover:border-blue-600/60 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
             title="Load image from render outputs and references"
           >
-            <ImageIcon size={13} className="text-purple-400" />
+            <ImageIcon size={13} className="text-blue-400" />
             <span>Renders</span>
           </button>
         )}
@@ -300,7 +300,7 @@ export const RasterToolbar: React.FC<RasterToolbarProps> = ({
         {/* Export Button */}
         <button
           onClick={onExportClick}
-          className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-md shadow-indigo-600/20 cursor-pointer"
+          className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-md shadow-blue-600/20 cursor-pointer"
         >
           <Download size={13} />
           <span>Export</span>

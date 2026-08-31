@@ -662,7 +662,7 @@ const SmartProceduralWizard: React.FC<SmartProceduralWizardProps> = ({ isOpen, o
             </button>
           )}
           {subtype === 'studio' ? (
-            <button onClick={handleFinalize} className="flex-[2] py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2">
+            <button onClick={handleFinalize} className="flex-[2] py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2">
               {initialConfig ? 'Regenerate Layout' : 'Draw Boundary'} <ChevronRight size={18} />
             </button>
           ) : step < 3 ? (
@@ -670,7 +670,7 @@ const SmartProceduralWizard: React.FC<SmartProceduralWizardProps> = ({ isOpen, o
               Continue <ChevronRight size={18} />
             </button>
           ) : (
-            <button onClick={handleFinalize} className="flex-[2] py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2">
+            <button onClick={handleFinalize} className="flex-[2] py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2">
               {initialConfig ? 'Regenerate Layout' : 'Draw Boundary'} <ChevronRight size={18} />
             </button>
           )}

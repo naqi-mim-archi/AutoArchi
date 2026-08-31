@@ -314,28 +314,28 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   };
 
   // Reusable styling tokens for unified layout
-  const panelStyle = "relative bg-white/95 backdrop-blur shadow-lg shadow-slate-200/50 border border-slate-200 rounded-2xl p-4 w-72 flex flex-col flex-1 min-h-0 overflow-y-auto pointer-events-auto";
-  const sectionHeaderClass = "text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 mt-4 first:mt-0 pb-1 border-b border-slate-100";
-  const rowGridClass = "grid grid-cols-12 gap-2 items-center py-1";
-  const labelClass = "col-span-4 text-[11px] font-medium text-slate-500 whitespace-nowrap";
-  const inputContainerClass = "col-span-8";
-  const inlineInputClass = "w-full px-2.5 py-1 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:bg-white rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold transition-all shadow-sm";
-  const selectClass = "w-full px-2.5 py-1 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:bg-white rounded-lg text-xs font-bold text-slate-700 transition-all focus:ring-1 focus:ring-blue-500 focus:outline-none cursor-pointer shadow-sm";
+  const panelStyle = "relative bg-white/95 backdrop-blur shadow-lg shadow-slate-200/50 border border-slate-200 rounded-xl p-3 w-64 flex flex-col flex-1 min-h-0 overflow-y-auto pointer-events-auto";
+  const sectionHeaderClass = "text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 mt-3 first:mt-0 pb-1 border-b border-slate-100";
+  const rowGridClass = "grid grid-cols-12 gap-1.5 items-center py-0.5";
+  const labelClass = "col-span-5 text-[11px] font-medium text-slate-500 whitespace-nowrap";
+  const inputContainerClass = "col-span-7";
+  const inlineInputClass = "w-full px-2 py-1 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:bg-white rounded-lg text-[11px] text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold transition-all shadow-sm";
+  const selectClass = "w-full px-2 py-1 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:bg-white rounded-lg text-[11px] font-bold text-slate-700 transition-all focus:ring-1 focus:ring-blue-500 focus:outline-none cursor-pointer shadow-sm";
 
   // Render when NO ELEMENT IS SELECTED (Simplified Project Settings)
   if (!selectedElement) {
     const isAutomationView = editorState.viewMode === '2D' && (editorState.drawingView || 'plan') === 'plan';
     return (
       <div className={panelStyle}>
-        <div className="flex items-center gap-2 pb-4 border-b border-slate-100 text-slate-850">
-        <Settings size={16} className="text-slate-500" />
+        <div className="flex items-center gap-2 pb-3 border-b border-slate-100 text-slate-850">
+        <Settings size={14} className="text-slate-500" />
         <div>
           <h3 className="text-xs font-black uppercase tracking-wide">Project Settings</h3>
           <p className="text-[9px] text-slate-400 font-medium">Workspace Defaults</p>
         </div>
       </div>
 
-      <div className="py-4 space-y-4">
+      <div className="py-3 space-y-3">
         {/* Global Tools Relocated from Top Bar */}
         <div className="flex items-center gap-2 relative">
           {SHOW_AI_GEN_MENU && <>
@@ -345,30 +345,30 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
                 setIsAiDropdownOpen(!isAiDropdownOpen);
               }}
               disabled={!isAutomationView}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg shadow-sm transition-all flex items-center justify-center gap-1.5 ${isAutomationView ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}`}
+              className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg shadow-sm transition-all flex items-center justify-center gap-1.5 ${isAutomationView ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}`}
               title={isAutomationView ? 'AI Generation Features' : 'AI generation is available in 2D Plan only'}
             >
-              <Sparkles size={14} />
-              AI Gen <ChevronDown size={12} />
+              <Sparkles size={12} />
+              AI Gen <ChevronDown size={10} />
             </button>
 
             {isAiDropdownOpen && isAutomationView && (
               <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-slate-200 rounded-lg shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200 py-1">
                 <button
-                  className="w-full text-left px-3 py-2 text-[11px] font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 text-[11px] font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors flex items-center gap-2"
                   onClick={() => {
                     setIsAiDropdownOpen(false);
                     onOpenGenerativeWizard?.();
                   }}
                 >
-                  <Sparkles size={12} className="text-indigo-500" />
+                  <Sparkles size={12} className="text-blue-500" />
                   Floorplan Generation
                 </button>
               </div>
             )}
           </>}
 
-          <div className="flex flex-1 items-center bg-slate-100 rounded-lg p-1 border border-slate-200">
+          <div className="flex flex-1 items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200">
             <button onClick={() => setEditorState(s => ({ ...s, unitSystem: 'metric' }))} className={`flex-1 py-1 text-[10px] font-bold rounded transition-all ${editorState.unitSystem === 'metric' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-slate-200/50' : 'text-slate-500 hover:text-slate-700'}`}>Metric</button>
             <button onClick={() => setEditorState(s => ({ ...s, unitSystem: 'imperial' }))} className={`flex-1 py-1 text-[10px] font-bold rounded transition-all ${editorState.unitSystem === 'imperial' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-slate-200/50' : 'text-slate-500 hover:text-slate-700'}`}>Imperial</button>
           </div>
@@ -376,13 +376,13 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
           
           <div className={sectionHeaderClass}>Level Management</div>
           
-          <div className="grid grid-cols-12 gap-2 mb-2 px-1">
+          <div className="grid grid-cols-12 gap-1.5 mb-1.5 px-1">
              <div className="col-span-12 space-y-1">
                {[...project.levels].sort((a,b) => b.order - a.order).map(lvl => (
                  <button
                     key={lvl.id}
                     onClick={() => setEditorState(s => ({ ...s, activeLevelId: lvl.id }))}
-                    className={`w-full px-2 py-1.5 text-left text-[10px] font-bold rounded-md flex justify-between items-center transition-all ${editorState.activeLevelId === lvl.id ? 'bg-blue-100 text-blue-700' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
+                    className={`w-full px-2 py-1 text-left text-[10px] font-bold rounded-md flex justify-between items-center transition-all ${editorState.activeLevelId === lvl.id ? 'bg-blue-100 text-blue-700' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
                  >
                     <span>{lvl.name}</span>
                     <span className="text-slate-400 font-medium">{formatDimension(lvl.zElevation, editorState.unitSystem)}</span>
@@ -390,24 +390,24 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
                ))}
              </div>
           </div>
-          
-          <div className="grid grid-cols-12 gap-2">
-            <button onClick={handleAddLevelAbove} className="col-span-6 px-2 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 text-[10px] font-bold rounded flex items-center justify-center gap-1 transition-colors">
+
+          <div className="grid grid-cols-12 gap-1.5">
+            <button onClick={handleAddLevelAbove} className="col-span-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 text-[10px] font-bold rounded flex items-center justify-center gap-1 transition-colors">
                <span>↑ Add Above</span>
             </button>
-            <button onClick={handleAddLevelBelow} className="col-span-6 px-2 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 text-[10px] font-bold rounded flex items-center justify-center gap-1 transition-colors">
+            <button onClick={handleAddLevelBelow} className="col-span-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 text-[10px] font-bold rounded flex items-center justify-center gap-1 transition-colors">
                <span>↓ Add Below</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-12 gap-2 mt-4">
-            <label className="col-span-8 text-[10px] font-medium text-slate-500 whitespace-nowrap pt-1">Show Level Above (Ghost)</label>
+          <div className="grid grid-cols-12 gap-1.5 mt-3">
+            <label className="col-span-8 text-[10px] font-medium text-slate-500 whitespace-nowrap pt-0.5">Show Level Above (Ghost)</label>
             <div className="col-span-4 flex justify-end">
                <input type="checkbox" checked={!!editorState.showLevelAbove} onChange={(e) => setEditorState(s => ({ ...s, showLevelAbove: e.target.checked }))} />
             </div>
           </div>
-          <div className="grid grid-cols-12 gap-2">
-            <label className="col-span-8 text-[10px] font-medium text-slate-500 whitespace-nowrap pt-1">Show Level Below (Ghost)</label>
+          <div className="grid grid-cols-12 gap-1.5">
+            <label className="col-span-8 text-[10px] font-medium text-slate-500 whitespace-nowrap pt-0.5">Show Level Below (Ghost)</label>
             <div className="col-span-4 flex justify-end">
                <input type="checkbox" checked={!!editorState.showLevelBelow} onChange={(e) => setEditorState(s => ({ ...s, showLevelBelow: e.target.checked }))} />
             </div>
@@ -775,7 +775,7 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
                         alert('Failed to export Revit file.');
                       }
                     }}
-                    className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-indigo-55 border border-indigo-100 text-indigo-750 font-bold rounded-xl text-xs transition-colors hover:bg-indigo-100"
+                    className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-blue-55 border border-blue-100 text-blue-750 font-bold rounded-xl text-xs transition-colors hover:bg-blue-100"
                   >
                     <Download size={13} /> Export BIM (.rfa)
                   </button>
@@ -1019,7 +1019,7 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
                     onOpenProceduralWizard(selectedElement.id, selectedElement.boundary!);
                   }
                 }}
-                className="w-full py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center justify-center gap-2 shadow-sm active:scale-95 animate-in fade-in slide-in-from-top-2 duration-300"
+                className="w-full py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-700 hover:to-blue-700 text-white flex items-center justify-center gap-2 shadow-sm active:scale-95 animate-in fade-in slide-in-from-top-2 duration-300"
               >
                 <Sparkles size={12} />
                 Convert to Procedural

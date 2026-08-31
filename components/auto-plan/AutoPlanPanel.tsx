@@ -50,8 +50,8 @@ const stageLabel: Record<AutoPlanGenerationStage, string> = {
   import: 'Import',
 };
 
-const inputClass = 'w-full h-9 rounded-xl bg-slate-50 border border-slate-200 px-3 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500';
-const textareaSmallClass = 'w-full h-16 rounded-xl bg-slate-50 border border-slate-200 p-2 text-xs text-slate-800 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500';
+const inputClass = 'w-full h-9 rounded-xl bg-slate-50 border border-slate-200 px-3 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500';
+const textareaSmallClass = 'w-full h-16 rounded-xl bg-slate-50 border border-slate-200 p-2 text-xs text-slate-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500';
 const miniButtonClass = 'flex-1 h-8 rounded-lg bg-slate-50 border border-slate-200 text-[10px] font-black text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-1';
 const actionButtonClass = 'h-9 px-3 rounded-xl bg-white border border-slate-200 text-xs font-black text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5';
 const primaryButtonClass = 'h-9 px-4 rounded-xl bg-emerald-600 text-white text-xs font-black hover:bg-emerald-700 flex items-center gap-1.5';
@@ -396,7 +396,7 @@ const AutoPlanPanel: React.FC<AutoPlanPanelProps> = ({ currentBoundary, unitSyst
     <div className="flex-1 min-h-0 grid grid-cols-[320px_1fr] bg-slate-50">
       <aside className="border-r border-slate-200 bg-white overflow-y-auto p-4 space-y-5">
         <div>
-          <div className="text-[10px] font-black uppercase tracking-[0.18em] text-indigo-600">AI Gen</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">AI Gen</div>
           <h3 className="text-xl font-black text-slate-900 mt-1">Auto Plan</h3>
           <p className="text-xs text-slate-500 mt-1 leading-relaxed">AI residential floorplan generation with staged approval and native canvas import.</p>
         </div>
@@ -405,7 +405,7 @@ const AutoPlanPanel: React.FC<AutoPlanPanelProps> = ({ currentBoundary, unitSyst
           <SectionTitle title="1. Boundary" />
           <div className="grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1">
             {(['dimensions', 'rectangle', 'polygon'] as BoundaryMode[]).map(mode => (
-              <button key={mode} onClick={() => setBoundaryMode(mode)} className={`px-2 py-1.5 rounded-lg text-[10px] font-black uppercase ${boundaryMode === mode ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500'}`}>
+              <button key={mode} onClick={() => setBoundaryMode(mode)} className={`px-2 py-1.5 rounded-lg text-[10px] font-black uppercase ${boundaryMode === mode ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500'}`}>
                 {mode}
               </button>
             ))}
@@ -434,7 +434,7 @@ const AutoPlanPanel: React.FC<AutoPlanPanelProps> = ({ currentBoundary, unitSyst
           <textarea
             value={briefInput.prompt}
             onChange={event => setBrief({ prompt: event.target.value })}
-            className="w-full h-24 p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full h-24 p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <Field label="Category">
             <select value={briefInput.category} onChange={event => {
@@ -477,7 +477,7 @@ const AutoPlanPanel: React.FC<AutoPlanPanelProps> = ({ currentBoundary, unitSyst
                       event.preventDefault();
                       toggleSpace('optionalSpaces', space.id);
                     }}
-                    className={`px-2 py-1 rounded-lg text-[10px] font-bold border ${required ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : optional ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-white border-slate-200 text-slate-500'}`}
+                    className={`px-2 py-1 rounded-lg text-[10px] font-bold border ${required ? 'bg-blue-50 border-blue-200 text-blue-700' : optional ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-white border-slate-200 text-slate-500'}`}
                     title="Click toggles required. Right-click toggles optional."
                   >
                     {space.label}
@@ -498,7 +498,7 @@ const AutoPlanPanel: React.FC<AutoPlanPanelProps> = ({ currentBoundary, unitSyst
         <button
           onClick={handleGenerate}
           disabled={isGenerating || validationErrors.length > 0}
-          className="w-full py-3 bg-indigo-600 text-white font-black rounded-xl hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full py-3 bg-blue-600 text-white font-black rounded-xl hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
           {payload ? 'Regenerate' : 'Generate'}
@@ -509,7 +509,7 @@ const AutoPlanPanel: React.FC<AutoPlanPanelProps> = ({ currentBoundary, unitSyst
         <div className="flex items-center justify-between gap-4">
           <div className="flex gap-2">
             {stageOrder.slice(1).map(item => (
-              <div key={item} className={`px-3 py-2 rounded-xl border text-xs font-black ${stage === item ? 'bg-indigo-600 border-indigo-600 text-white' : stageOrder.indexOf(stage) > stageOrder.indexOf(item) ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-white border-slate-200 text-slate-500'}`}>
+              <div key={item} className={`px-3 py-2 rounded-xl border text-xs font-black ${stage === item ? 'bg-blue-600 border-blue-600 text-white' : stageOrder.indexOf(stage) > stageOrder.indexOf(item) ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-white border-slate-200 text-slate-500'}`}>
                 {stageLabel[item]}
               </div>
             ))}
@@ -631,11 +631,11 @@ const AutoPlanPanel: React.FC<AutoPlanPanelProps> = ({ currentBoundary, unitSyst
 
           {isGenerating && (
             <div className="absolute inset-0 bg-white/75 backdrop-blur-sm flex flex-col items-center justify-center gap-3">
-              <Loader2 className="animate-spin text-indigo-600" size={38} />
+              <Loader2 className="animate-spin text-blue-600" size={38} />
               <div className="text-sm font-black text-slate-800">Running local HouseDiffusion inference</div>
               {runtimeStatus?.state && (
                 <div className="max-w-md rounded-xl bg-white/90 border border-slate-200 px-4 py-3 text-center shadow-sm">
-                  <div className="text-[10px] font-black uppercase tracking-wider text-indigo-600">{runtimeStatus.state.replace(/_/g, ' ')}</div>
+                  <div className="text-[10px] font-black uppercase tracking-wider text-blue-600">{runtimeStatus.state.replace(/_/g, ' ')}</div>
                   <div className="text-xs text-slate-600 mt-1">{runtimeStatus.message}</div>
                   {runtimeStatus.device && <div className="text-[10px] text-slate-400 mt-1">Device: {runtimeStatus.device}</div>}
                   {runtimeStatus.elapsedSeconds !== undefined && <div className="text-[10px] text-slate-400 mt-1">Elapsed: {runtimeStatus.elapsedSeconds}s</div>}
@@ -649,7 +649,7 @@ const AutoPlanPanel: React.FC<AutoPlanPanelProps> = ({ currentBoundary, unitSyst
         <div className="shrink-0 rounded-2xl border border-slate-200 bg-white p-3 flex items-center justify-between gap-4">
           <div className="min-w-0">
             <div className="text-xs font-black text-slate-800 flex items-center gap-2">
-              {error ? <AlertCircle size={15} className="text-rose-600" /> : <MousePointer2 size={15} className="text-indigo-600" />}
+              {error ? <AlertCircle size={15} className="text-rose-600" /> : <MousePointer2 size={15} className="text-blue-600" />}
               {error || status}
             </div>
             <div className="text-[10px] text-slate-400 mt-1 truncate">

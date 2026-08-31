@@ -3428,26 +3428,26 @@ const App: React.FC = () => {
   if (!project && !isProcessing) {
     return (
       <div className="app-home min-h-screen flex items-center justify-center p-6">
-        <div className="app-home-card max-w-xl w-full bg-white rounded-3xl overflow-hidden p-10 flex flex-col items-center text-center space-y-8">
-          <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center"><Upload className="w-10 h-10 text-blue-600" /></div>
-          <div className="space-y-2"><h1 className="text-3xl font-bold text-slate-900 tracking-tight">ArchAI Digitizer</h1><p className="text-slate-500">Transform sketches into professional CAD data.</p></div>
-          <div className="w-full space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <button onClick={createBlankProject} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-semibold hover:bg-slate-800 transition-all flex flex-col items-center justify-center gap-2">
-                <Plus className="w-5 h-5" /> 
-                <span className="text-sm">Drawing Canvas</span>
+        <div className="app-home-card max-w-sm w-full bg-white rounded-3xl overflow-hidden p-7 flex flex-col items-center text-center space-y-5">
+          <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center"><Upload className="w-7 h-7 text-blue-600" /></div>
+          <div className="space-y-1"><h1 className="text-xl font-bold text-slate-900 tracking-tight">ArchAI Digitizer</h1><p className="text-xs text-slate-500">Transform sketches into professional CAD data.</p></div>
+          <div className="w-full space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={createBlankProject} className="w-full py-3 bg-slate-900 text-white rounded-2xl font-semibold hover:bg-slate-800 transition-all flex flex-col items-center justify-center gap-1.5">
+                <Plus className="w-4 h-4" />
+                <span className="text-xs">Drawing Canvas</span>
               </button>
-              <button onClick={openRenderCanvasFromHome} className="w-full py-4 bg-blue-600 text-white rounded-2xl font-semibold hover:bg-blue-700 transition-all flex flex-col items-center justify-center gap-2">
-                <Sparkles className="w-5 h-5" /> 
-                <span className="text-sm">Render Canvas</span>
+              <button onClick={openRenderCanvasFromHome} className="w-full py-3 bg-blue-600 text-white rounded-2xl font-semibold hover:bg-blue-700 transition-all flex flex-col items-center justify-center gap-1.5">
+                <Sparkles className="w-4 h-4" />
+                <span className="text-xs">Render Canvas</span>
               </button>
-              <button onClick={() => openText4hFromHome(false)} className="w-full py-4 bg-white text-slate-900 border border-blue-200 rounded-2xl font-semibold hover:bg-blue-50 hover:border-blue-300 transition-all flex flex-col items-center justify-center gap-2">
-                <Wand2 className="w-5 h-5 text-blue-600" />
-                <span className="text-sm">AutoPlan</span>
+              <button onClick={() => openText4hFromHome(false)} className="w-full py-3 bg-white text-slate-900 border border-blue-200 rounded-2xl font-semibold hover:bg-blue-50 hover:border-blue-300 transition-all flex flex-col items-center justify-center gap-1.5">
+                <Wand2 className="w-4 h-4 text-blue-600" />
+                <span className="text-xs">AutoPlan</span>
               </button>
-              <button onClick={() => openText4hFromHome(true)} className="w-full py-4 bg-blue-50 text-blue-700 border border-blue-200 rounded-2xl font-semibold hover:bg-blue-100 hover:border-blue-300 transition-all flex flex-col items-center justify-center gap-2">
-                <ScanLine className="w-5 h-5" />
-                <span className="text-sm">AutoScan</span>
+              <button onClick={() => openText4hFromHome(true)} className="w-full py-3 bg-blue-50 text-blue-700 border border-blue-200 rounded-2xl font-semibold hover:bg-blue-100 hover:border-blue-300 transition-all flex flex-col items-center justify-center gap-1.5">
+                <ScanLine className="w-4 h-4" />
+                <span className="text-xs">AutoScan</span>
               </button>
             </div>
           </div>
@@ -3929,7 +3929,7 @@ const App: React.FC = () => {
                 hasSiteMap={!!project?.siteMap?.url}
                 onOpenSiteMapPanel={() => setIsSiteMapPanelOpen(true)}
               />
-              <div className="absolute top-[244px] right-5 bottom-5 flex flex-col gap-4 items-end z-40 pointer-events-none">
+              <div className="absolute top-[224px] right-5 bottom-5 flex flex-col gap-4 items-end z-40 pointer-events-none">
                 <PropertiesPanel 
                   selectedElement={project?.elements.find(el => editorState.selectedIds.includes(el.id)) || null} 
                   onUpdate={handleElementUpdate} 
@@ -4100,7 +4100,7 @@ const App: React.FC = () => {
                 setPendingSnapshots(s => [...s, { url: snapPreviewImage, name: `Snap ${ts}` }]);
                 setSnapPreviewImage(null);
               }}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md"
             >
               Import to Render Canvas
             </button>

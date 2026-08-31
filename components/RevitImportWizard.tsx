@@ -221,7 +221,7 @@ export const RevitImportWizard: React.FC<RevitImportWizardProps> = ({
         
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center shrink-0">
-          <div className="flex items-center gap-2 text-indigo-650">
+          <div className="flex items-center gap-2 text-blue-650">
             <Database size={22} />
             <h2 className="font-extrabold text-xl text-slate-900">BIM Revit Importer Tool</h2>
           </div>
@@ -234,13 +234,13 @@ export const RevitImportWizard: React.FC<RevitImportWizardProps> = ({
         <div className="bg-slate-50 p-2 flex border-b border-slate-100 shrink-0">
           <button 
             onClick={() => { setActiveDivision('asset'); handleReset(); }}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeDivision === 'asset' ? 'bg-white text-indigo-600 shadow-sm border border-slate-200/50' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeDivision === 'asset' ? 'bg-white text-blue-600 shadow-sm border border-slate-200/50' : 'text-slate-500 hover:text-slate-700'}`}
           >
             <Database size={16} /> Asset Division (RFA Families)
           </button>
           <button 
             onClick={() => { setActiveDivision('project'); handleReset(); }}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeDivision === 'project' ? 'bg-white text-indigo-600 shadow-sm border border-slate-200/50' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeDivision === 'project' ? 'bg-white text-blue-600 shadow-sm border border-slate-200/50' : 'text-slate-500 hover:text-slate-700'}`}
           >
             <Layers size={16} /> Project Division (RVT Layouts)
           </button>
@@ -251,7 +251,7 @@ export const RevitImportWizard: React.FC<RevitImportWizardProps> = ({
           
           {!revitFile ? (
             <div className="space-y-4">
-              <div className="text-center py-10 border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-3xl transition-colors flex flex-col items-center justify-center px-4 bg-slate-50/50">
+              <div className="text-center py-10 border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-3xl transition-colors flex flex-col items-center justify-center px-4 bg-slate-50/50">
                 <Upload className="text-slate-400 mb-3" size={36} />
                 <h3 className="font-bold text-slate-800 text-base mb-1">
                   Upload a Revit {activeDivision === 'asset' ? '.rfa family' : '.rvt project'} file
@@ -268,7 +268,7 @@ export const RevitImportWizard: React.FC<RevitImportWizardProps> = ({
                 />
                 <button 
                   onClick={() => fileInputRef.current?.click()}
-                  className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm shadow-md shadow-indigo-600/10 transition-colors"
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm shadow-md shadow-blue-600/10 transition-colors"
                 >
                   Select Revit File
                 </button>
@@ -279,7 +279,7 @@ export const RevitImportWizard: React.FC<RevitImportWizardProps> = ({
               {/* File Info */}
               <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center font-black">
+                  <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-black">
                     {metadata?.type}
                   </div>
                   <div>
@@ -325,7 +325,7 @@ export const RevitImportWizard: React.FC<RevitImportWizardProps> = ({
                         />
                         <button 
                           onClick={() => objInputRef.current?.click()}
-                          className="w-full py-3 border border-dashed border-slate-300 hover:border-indigo-400 rounded-xl text-xs font-bold text-indigo-650 flex items-center justify-center gap-1.5 bg-slate-50/50 transition-colors"
+                          className="w-full py-3 border border-dashed border-slate-300 hover:border-blue-400 rounded-xl text-xs font-bold text-blue-650 flex items-center justify-center gap-1.5 bg-slate-50/50 transition-colors"
                         >
                           <Upload size={14} /> Upload Companion OBJ
                         </button>
@@ -363,7 +363,7 @@ export const RevitImportWizard: React.FC<RevitImportWizardProps> = ({
                         type="text" 
                         value={assetName}
                         onChange={(e) => setAssetName(e.target.value)}
-                        className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500"
+                        className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500"
                       />
                     </div>
                     <div className="space-y-1">
@@ -371,7 +371,7 @@ export const RevitImportWizard: React.FC<RevitImportWizardProps> = ({
                       <select 
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500"
                       >
                         <option value="Seating">Seating</option>
                         <option value="Furniture">Furniture</option>
@@ -430,7 +430,7 @@ export const RevitImportWizard: React.FC<RevitImportWizardProps> = ({
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       rows={2}
-                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/25"
+                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/25"
                     />
                   </div>
                 </div>
@@ -442,15 +442,15 @@ export const RevitImportWizard: React.FC<RevitImportWizardProps> = ({
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Project Mapping Configuration</span>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-slate-600 font-semibold">Convert wall geometry</span>
-                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-indigo-650" />
+                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-blue-650" />
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-slate-600 font-semibold">Import structure columns</span>
-                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-indigo-650" />
+                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-blue-650" />
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-slate-600 font-semibold">Import doors & windows</span>
-                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-indigo-650" />
+                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-blue-650" />
                   </div>
                 </div>
               )}
@@ -470,7 +470,7 @@ export const RevitImportWizard: React.FC<RevitImportWizardProps> = ({
             <button 
               onClick={handleSaveToInventory}
               disabled={!revitFile || !metadata}
-              className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg shadow-indigo-600/10 transition-colors text-sm"
+              className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg shadow-blue-600/10 transition-colors text-sm"
             >
               Load to Inventory
             </button>
@@ -478,7 +478,7 @@ export const RevitImportWizard: React.FC<RevitImportWizardProps> = ({
             <button 
               onClick={handleImportProjectLayout}
               disabled={!revitFile || !metadata}
-              className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg shadow-indigo-600/10 transition-colors text-sm"
+              className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg shadow-blue-600/10 transition-colors text-sm"
             >
               Place Layout Draft
             </button>

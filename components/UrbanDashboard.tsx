@@ -87,7 +87,7 @@ export const UrbanDashboard: React.FC<UrbanDashboardProps> = ({ project, onGener
               onClick={onOpenUrbanWizard}
               className="flex flex-col items-center justify-center p-4 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 transition-colors shadow-sm gap-2 text-center"
             >
-              <Sparkles size={18} className="text-purple-600" />
+              <Sparkles size={18} className="text-blue-600" />
               <span className="text-[10px] font-bold text-slate-700 leading-tight">Urban Wizard</span>
             </button>
           </div>

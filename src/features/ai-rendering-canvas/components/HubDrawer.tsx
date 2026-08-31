@@ -28,7 +28,7 @@ export const HubDrawer: React.FC<HubDrawerProps> = ({
       <div className="px-4 py-3 border-b border-slate-800 bg-slate-950/80 flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles size={16} className="text-indigo-400" />
+            <Sparkles size={16} className="text-blue-400" />
             <h3 className="text-xs font-bold text-slate-100 tracking-wide">Rendering Workflows</h3>
           </div>
           <button
@@ -43,10 +43,10 @@ export const HubDrawer: React.FC<HubDrawerProps> = ({
 
       {/* 2. Source Image Context Banner (When branching from a node) */}
       {sourceNodeTitle && (
-        <div className="px-3.5 py-2 bg-indigo-950/40 border-b border-indigo-800/40 flex items-center justify-between gap-2 text-xs">
+        <div className="px-3.5 py-2 bg-blue-950/40 border-b border-blue-800/40 flex items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2 min-w-0">
-            <GitFork size={13} className="text-indigo-400 shrink-0" />
-            <span className="text-[11px] text-indigo-200 truncate">
+            <GitFork size={13} className="text-blue-400 shrink-0" />
+            <span className="text-[11px] text-blue-200 truncate">
               Branching from: <strong className="text-white">{sourceNodeTitle}</strong>
             </span>
           </div>
@@ -54,7 +54,7 @@ export const HubDrawer: React.FC<HubDrawerProps> = ({
             <img
               src={sourceNodeImageUrl}
               alt="Source"
-              className="w-7 h-7 rounded-md object-cover border border-indigo-700/60 shrink-0"
+              className="w-7 h-7 rounded-md object-cover border border-blue-700/60 shrink-0"
             />
           )}
         </div>

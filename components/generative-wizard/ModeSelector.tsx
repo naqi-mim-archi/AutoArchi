@@ -16,31 +16,31 @@ interface ModeDefinition {
   mode: GenerativeWizardMode;
   label: string;
   icon: LucideIcon;
-  accent: 'indigo' | 'emerald';
+  accent: 'blue' | 'emerald';
 }
 
 const MODES: ModeDefinition[] = [
-  { mode: 'auto-plan', label: 'Auto Plan', icon: Wand2, accent: 'indigo' },
-  { mode: 'chat', label: 'Text', icon: MessageSquare, accent: 'indigo' },
-  { mode: 'chat-v2', label: 'Text 2.0', icon: MessageSquare, accent: 'indigo' },
-  { mode: 'chat-v3', label: 'Text 3.0', icon: MessageSquare, accent: 'indigo' },
-  { mode: 'chat-v4', label: 'Text 4.0', icon: MessageSquare, accent: 'indigo' },
-  { mode: 'chat-v4a', label: 'Text 4.0 A', icon: MessageSquare, accent: 'indigo' },
-  { mode: 'chat-v4b', label: 'Text 4.0 B', icon: MessageSquare, accent: 'indigo' },
-  { mode: 'chat-v4c', label: 'Text 4.0 C', icon: MessageSquare, accent: 'indigo' },
-  { mode: 'chat-v4d', label: 'Text 4.0 D', icon: MessageSquare, accent: 'indigo' },
-  { mode: 'chat-v4e', label: 'Text 4.0 E', icon: MessageSquare, accent: 'indigo' },
-  { mode: 'chat-v4f', label: 'Text 4.0 F', icon: MessageSquare, accent: 'indigo' },
-  { mode: 'chat-v4g', label: 'Text 4.0 G', icon: MessageSquare, accent: 'indigo' },
-  { mode: 'chat-v4h', label: 'AutoPlan', icon: MessageSquare, accent: 'indigo' },
-  { mode: 'chat-v4j', label: 'Text 4.0 J', icon: MessageSquare, accent: 'indigo' },
-  { mode: 'text2plan', label: 'Text2Plan', icon: Sparkles, accent: 'indigo' },
+  { mode: 'auto-plan', label: 'Auto Plan', icon: Wand2, accent: 'blue' },
+  { mode: 'chat', label: 'Text', icon: MessageSquare, accent: 'blue' },
+  { mode: 'chat-v2', label: 'Text 2.0', icon: MessageSquare, accent: 'blue' },
+  { mode: 'chat-v3', label: 'Text 3.0', icon: MessageSquare, accent: 'blue' },
+  { mode: 'chat-v4', label: 'Text 4.0', icon: MessageSquare, accent: 'blue' },
+  { mode: 'chat-v4a', label: 'Text 4.0 A', icon: MessageSquare, accent: 'blue' },
+  { mode: 'chat-v4b', label: 'Text 4.0 B', icon: MessageSquare, accent: 'blue' },
+  { mode: 'chat-v4c', label: 'Text 4.0 C', icon: MessageSquare, accent: 'blue' },
+  { mode: 'chat-v4d', label: 'Text 4.0 D', icon: MessageSquare, accent: 'blue' },
+  { mode: 'chat-v4e', label: 'Text 4.0 E', icon: MessageSquare, accent: 'blue' },
+  { mode: 'chat-v4f', label: 'Text 4.0 F', icon: MessageSquare, accent: 'blue' },
+  { mode: 'chat-v4g', label: 'Text 4.0 G', icon: MessageSquare, accent: 'blue' },
+  { mode: 'chat-v4h', label: 'AutoPlan', icon: MessageSquare, accent: 'blue' },
+  { mode: 'chat-v4j', label: 'Text 4.0 J', icon: MessageSquare, accent: 'blue' },
+  { mode: 'text2plan', label: 'Text2Plan', icon: Sparkles, accent: 'blue' },
   { mode: 'smart-text2plan', label: 'Smart', icon: Sparkles, accent: 'emerald' },
-  { mode: 'fusion', label: 'Fusion 3.0', icon: Globe, accent: 'indigo' },
-  { mode: 'tracer', label: 'Tracer', icon: Zap, accent: 'indigo' },
-  { mode: 'redraw-v2', label: 'Redraw 2.0', icon: ScanLine, accent: 'indigo' },
-  { mode: 'digitizer', label: 'Digitizer', icon: Edit3, accent: 'indigo' },
-  { mode: 'ai-rendering', label: 'Render Canvas', icon: Sparkles, accent: 'indigo' },
+  { mode: 'fusion', label: 'Fusion 3.0', icon: Globe, accent: 'blue' },
+  { mode: 'tracer', label: 'Tracer', icon: Zap, accent: 'blue' },
+  { mode: 'redraw-v2', label: 'Redraw 2.0', icon: ScanLine, accent: 'blue' },
+  { mode: 'digitizer', label: 'Digitizer', icon: Edit3, accent: 'blue' },
+  { mode: 'ai-rendering', label: 'Render Canvas', icon: Sparkles, accent: 'blue' },
 ];
 
 interface ModeSelectorProps {
@@ -62,7 +62,7 @@ const ModeSelector: React.FC<ModeSelectorProps> = ({ mode, isOpen, onOpenChange,
       >
         {current && CurrentIcon && (
           <>
-            <CurrentIcon size={14} className={current.accent === 'emerald' ? 'text-emerald-600' : 'text-indigo-600'} />
+            <CurrentIcon size={14} className={current.accent === 'emerald' ? 'text-emerald-600' : 'text-blue-600'} />
             {current.label}
           </>
         )}
@@ -76,12 +76,12 @@ const ModeSelector: React.FC<ModeSelectorProps> = ({ mode, isOpen, onOpenChange,
             const isActive = item.mode === mode;
             const activeClasses = item.accent === 'emerald'
               ? 'bg-emerald-50 text-emerald-700'
-              : 'bg-indigo-50 text-indigo-700';
+              : 'bg-blue-50 text-blue-700';
             const hoverClasses = item.accent === 'emerald'
               ? 'text-slate-700 hover:bg-slate-50 hover:text-emerald-600'
-              : 'text-slate-700 hover:bg-slate-50 hover:text-indigo-600';
+              : 'text-slate-700 hover:bg-slate-50 hover:text-blue-600';
             const iconClass = isActive
-              ? item.accent === 'emerald' ? 'text-emerald-600' : 'text-indigo-600'
+              ? item.accent === 'emerald' ? 'text-emerald-600' : 'text-blue-600'
               : 'text-slate-400';
             return (
               <button

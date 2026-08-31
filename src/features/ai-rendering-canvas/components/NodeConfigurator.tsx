@@ -180,7 +180,7 @@ export const NodeConfigurator: React.FC<NodeConfiguratorProps> = ({
               });
             }
           }}
-          className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none font-bold cursor-pointer"
+          className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none font-bold cursor-pointer"
         >
           <optgroup label={currentHub === 'gen_3d' ? '3D Workflows' : currentHub === 'raster_canvas' ? 'Editing Workflows' : 'Render Workflows'}>
             {availableWorkflows.map(w => (
@@ -198,9 +198,9 @@ export const NodeConfigurator: React.FC<NodeConfiguratorProps> = ({
       </div>
 
       {isReferenceGuided && (
-        <div className="bg-indigo-950/40 border border-indigo-800/60 rounded-xl p-2.5 text-slate-300 leading-relaxed space-y-1">
-          <div className="flex items-center gap-1.5 font-bold text-indigo-300 text-[10px]">
-            <Sparkles size={12} className="text-indigo-400 shrink-0" />
+        <div className="bg-blue-950/40 border border-blue-800/60 rounded-xl p-2.5 text-slate-300 leading-relaxed space-y-1">
+          <div className="flex items-center gap-1.5 font-bold text-blue-300 text-[10px]">
+            <Sparkles size={12} className="text-blue-400 shrink-0" />
             <span>Reference Guided Synthesis</span>
           </div>
           <p className="text-slate-400 text-[8.5px] leading-relaxed">
@@ -215,7 +215,7 @@ export const NodeConfigurator: React.FC<NodeConfiguratorProps> = ({
           <select
             value={node.style || 'realistic'}
             onChange={e => onConfigureNode(node.id, { style: e.target.value })}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none font-bold font-sans cursor-pointer"
+            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none font-bold font-sans cursor-pointer"
           >
             <option value="realistic">Realistic</option>
             <option value="artistic_sketch">Artistic Sketch</option>
@@ -240,7 +240,7 @@ export const NodeConfigurator: React.FC<NodeConfiguratorProps> = ({
           value={node.prompt || ''}
           onChange={e => onConfigureNode(node.id, { prompt: e.target.value })}
           rows={2}
-          className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg p-2 text-slate-200 text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none scrollbar-thin"
+          className="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-lg p-2 text-slate-200 text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none scrollbar-thin"
         />
       </div>
 
@@ -255,7 +255,7 @@ export const NodeConfigurator: React.FC<NodeConfiguratorProps> = ({
         </div>
 
         {(!isMultiInputAllowed && combinedImages.length >= 1) ? null : (
-          <div className="border-2 border-dashed border-slate-700/80 hover:border-indigo-500/60 rounded-xl p-2 text-center bg-slate-950/40 hover:bg-slate-950/80 transition-all group">
+          <div className="border-2 border-dashed border-slate-700/80 hover:border-blue-500/60 rounded-xl p-2 text-center bg-slate-950/40 hover:bg-slate-950/80 transition-all group">
             <label className="cursor-pointer flex flex-col items-center justify-center gap-1.5">
               <input
                 type="file"
@@ -267,10 +267,10 @@ export const NodeConfigurator: React.FC<NodeConfiguratorProps> = ({
                   }
                 }}
               />
-              <div className="p-1 rounded-xl bg-slate-900 group-hover:bg-indigo-950/60 text-slate-400 group-hover:text-indigo-400 transition-colors">
+              <div className="p-1 rounded-xl bg-slate-900 group-hover:bg-blue-950/60 text-slate-400 group-hover:text-blue-400 transition-colors">
                 <Upload size={14} />
               </div>
-              <span className="text-[10px] font-semibold text-indigo-400 group-hover:text-indigo-300">
+              <span className="text-[10px] font-semibold text-blue-400 group-hover:text-blue-300">
                 Upload Image
               </span>
             </label>
@@ -287,7 +287,7 @@ export const NodeConfigurator: React.FC<NodeConfiguratorProps> = ({
                     <span className="text-[10px] font-bold text-slate-200 truncate pr-1">{img.name}</span>
                     <div className="flex items-center gap-1 shrink-0">
                       {img.source === 'incoming' && (
-                        <span className="px-1 py-0.5 rounded bg-indigo-950/50 border border-indigo-800 text-[8px] text-indigo-300">
+                        <span className="px-1 py-0.5 rounded bg-blue-950/50 border border-blue-800 text-[8px] text-blue-300">
                           Forked In
                         </span>
                       )}
@@ -328,7 +328,7 @@ export const NodeConfigurator: React.FC<NodeConfiguratorProps> = ({
                         onConfigureNode(node.id, { uploadedImages: updatedImages });
                       }
                     }}
-                    className="w-full bg-slate-900 border border-slate-700 rounded p-1 text-[9px] text-slate-300 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full bg-slate-900 border border-slate-700 rounded p-1 text-[9px] text-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   >
                     <option value="drawing">Design Drawing (Geometry)</option>
                     <option value="reference">Visual Reference (Style/Color)</option>
@@ -341,17 +341,17 @@ export const NodeConfigurator: React.FC<NodeConfiguratorProps> = ({
       </div>
 
       {(isImageRequired || uploadedImages.length > 0) && (
-        <div className="bg-slate-950/80 border border-indigo-950/80 rounded-xl p-2.5 space-y-2">
+        <div className="bg-slate-950/80 border border-blue-950/80 rounded-xl p-2.5 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sliders size={12} className={controlNetEnabled ? "text-indigo-400" : "text-slate-500"} />
+              <Sliders size={12} className={controlNetEnabled ? "text-blue-400" : "text-slate-500"} />
               <span className="text-[9px] font-bold uppercase tracking-wider text-slate-200">ControlNet</span>
             </div>
             <button
               type="button"
               onClick={() => onConfigureNode(node.id, { controlNetEnabled: !controlNetEnabled })}
               className={`w-7 h-4 flex items-center rounded-full p-0.5 transition-colors cursor-pointer ${
-                controlNetEnabled ? 'bg-indigo-600' : 'bg-slate-700'
+                controlNetEnabled ? 'bg-blue-600' : 'bg-slate-700'
               }`}
             >
               <div className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform ${controlNetEnabled ? 'translate-x-3' : 'translate-x-0'}`} />
@@ -361,7 +361,7 @@ export const NodeConfigurator: React.FC<NodeConfiguratorProps> = ({
             <div className="pt-1.5 border-t border-slate-800/80 space-y-1">
               <div className="flex items-center justify-between text-[9px]">
                 <span className="text-slate-300">Conditioning Fidelity</span>
-                <span className="font-mono font-bold text-indigo-300">{controlNetStrength}%</span>
+                <span className="font-mono font-bold text-blue-300">{controlNetStrength}%</span>
               </div>
               <input
                 type="range"
@@ -369,7 +369,7 @@ export const NodeConfigurator: React.FC<NodeConfiguratorProps> = ({
                 max="100"
                 value={controlNetStrength}
                 onChange={e => onConfigureNode(node.id, { controlNetStrength: Number(e.target.value) })}
-                className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
               />
             </div>
           )}
@@ -415,7 +415,7 @@ export const NodeConfigurator: React.FC<NodeConfiguratorProps> = ({
           className="w-full px-2 py-1.5 flex items-center justify-between text-slate-300 hover:text-white transition-colors cursor-pointer text-[10px] font-semibold"
         >
           <div className="flex items-center gap-1.5">
-            <Sliders size={10} className="text-indigo-400" />
+            <Sliders size={10} className="text-blue-400" />
             <span>Advanced Directives</span>
           </div>
           {showAdvancedDirectives ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
@@ -457,7 +457,7 @@ export const NodeConfigurator: React.FC<NodeConfiguratorProps> = ({
         <select
           value={node.model || activeWorkflow?.default_model}
           onChange={e => onConfigureNode(node.id, { model: e.target.value })}
-          className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs font-bold focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+          className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs font-bold focus:ring-1 focus:ring-blue-500 cursor-pointer"
         >
           {modelsList.map(m => (
             <option key={m} value={m}>{getModelIcon(m)} {m}</option>
@@ -467,11 +467,11 @@ export const NodeConfigurator: React.FC<NodeConfiguratorProps> = ({
 
       <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-2 space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-[9px] uppercase font-bold text-indigo-300">Compiled AI Prompt</span>
+          <span className="text-[9px] uppercase font-bold text-blue-300">Compiled AI Prompt</span>
           <button
             type="button"
             onClick={handleEnhanceWithAi}
-            className="px-1.5 py-0.5 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white rounded text-[8px] font-bold cursor-pointer"
+            className="px-1.5 py-0.5 bg-blue-600/30 hover:bg-blue-600 text-blue-300 hover:text-white rounded text-[8px] font-bold cursor-pointer"
           >
             {isEnhancingPrompt ? "..." : "Enhance"}
           </button>
@@ -480,7 +480,7 @@ export const NodeConfigurator: React.FC<NodeConfiguratorProps> = ({
           value={node.compiledPrompt || node.prompt || ''}
           onChange={e => onConfigureNode(node.id, { compiledPrompt: e.target.value })}
           rows={2}
-          className="w-full bg-slate-900 border border-slate-800 rounded p-1 text-indigo-200 text-[9px] font-mono leading-relaxed resize-none focus:outline-none"
+          className="w-full bg-slate-900 border border-slate-800 rounded p-1 text-blue-200 text-[9px] font-mono leading-relaxed resize-none focus:outline-none"
         />
       </div>
 
@@ -493,7 +493,7 @@ export const NodeConfigurator: React.FC<NodeConfiguratorProps> = ({
           type="button"
           onClick={() => onGenerateNode(node)}
           disabled={isVideoComingSoon}
-          className="w-full py-2 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-indigo-600/30 cursor-pointer disabled:cursor-not-allowed disabled:opacity-45"
+          className="w-full py-2 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-xl bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-500 hover:to-blue-500 text-white shadow-blue-600/30 cursor-pointer disabled:cursor-not-allowed disabled:opacity-45"
         >
           <Sparkles size={14} />
           <span>{isVideoComingSoon ? 'Video Workflow - Coming Soon' : 'Generate Render'}</span>

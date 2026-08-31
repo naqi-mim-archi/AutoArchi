@@ -155,11 +155,11 @@ export const ViewportCompass: React.FC<ViewportCompassProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       id="viewport-compass-widget"
-      className="relative shrink-0 bg-white/95 backdrop-blur shadow-lg shadow-slate-200/50 border border-slate-200 rounded-2xl p-2 flex flex-col items-center gap-1.5 transition-all duration-300 hover:shadow-xl hover:border-slate-300 text-slate-700 select-none pointer-events-auto"
-      style={{ width: '116px' }}
+      className="relative shrink-0 bg-white/95 backdrop-blur shadow-lg shadow-slate-200/50 border border-slate-200 rounded-xl p-1.5 flex flex-col items-center gap-1 transition-all duration-300 hover:shadow-xl hover:border-slate-300 text-slate-700 select-none pointer-events-auto"
+      style={{ width: '92px' }}
     >
         {/* Widget Header / Toggle Mode */}
-        <div className="flex items-center justify-between w-full bg-slate-100/80 rounded-lg p-1 mb-1">
+        <div className="flex items-center justify-between w-full bg-slate-100/80 rounded-lg p-0.5 mb-0.5">
           <button
             onClick={() => {
               if (viewMode === '2D' && activeDrawingView !== 'plan') {
@@ -168,7 +168,7 @@ export const ViewportCompass: React.FC<ViewportCompassProps> = ({
                 onToggleViewMode?.('2D');
               }
             }}
-            className={`flex-1 px-1 py-1 text-[10px] font-bold rounded transition-all flex items-center justify-center gap-1 ${
+            className={`flex-1 px-0.5 py-1 text-[10px] font-bold rounded transition-all flex items-center justify-center gap-1 ${
               viewMode === '2D' && activeDrawingView === 'plan'
                 ? 'bg-white text-blue-600 shadow-sm ring-1 ring-slate-200/50 font-black'
                 : viewMode === '2D'
@@ -181,7 +181,7 @@ export const ViewportCompass: React.FC<ViewportCompassProps> = ({
           </button>
           <button
             onClick={() => onToggleViewMode?.('3D')}
-            className={`flex-1 px-1 py-1 text-[10px] font-bold rounded transition-all flex items-center justify-center gap-1 ${
+            className={`flex-1 px-0.5 py-1 text-[10px] font-bold rounded transition-all flex items-center justify-center gap-1 ${
               viewMode === '3D' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-slate-200/50 font-black' : 'text-slate-500 hover:text-slate-700'
             }`}
             title="3D View"
@@ -191,7 +191,7 @@ export const ViewportCompass: React.FC<ViewportCompassProps> = ({
         </div>
 
       {/* Main Interactive Compass Ring & Cube */}
-      <div className="relative w-20 h-20 flex items-center justify-center select-none">
+      <div className="relative w-16 h-16 flex items-center justify-center select-none">
         {/* Dynamic Rotating SVG Ring (2D Mode only) */}
         {viewMode === '2D' && (
           <motion.svg 
@@ -268,17 +268,17 @@ export const ViewportCompass: React.FC<ViewportCompassProps> = ({
           <button 
             onClick={handleResetAngle}
             title="Reset Plan Rotation"
-            className="absolute w-[36px] h-[36px] bg-slate-100 hover:bg-blue-50 border border-slate-300 rounded flex items-center justify-center transition-all shadow-inner active:scale-90 group z-10 cursor-pointer"
+            className="absolute w-[28px] h-[28px] bg-slate-100 hover:bg-blue-50 border border-slate-300 rounded flex items-center justify-center transition-all shadow-inner active:scale-90 group z-10 cursor-pointer"
           >
-            <span className="text-[9px] font-black text-slate-600 group-hover:text-blue-600 uppercase tracking-tighter">
+            <span className="text-[8px] font-black text-slate-600 group-hover:text-blue-600 uppercase tracking-tighter">
               TOP
             </span>
           </button>
         ) : (
           // 3D Mode: Rotating CAD 3D ViewCube in HTML/CSS 3D
-          <div className="absolute w-[64px] h-[64px] z-10 flex items-center justify-center pointer-events-auto" style={{ perspective: '300px' }}>
+          <div className="absolute w-[52px] h-[52px] z-10 flex items-center justify-center pointer-events-auto" style={{ perspective: '240px' }}>
             <div
-              className="w-10 h-10 relative"
+              className="w-8 h-8 relative"
               style={{
                 transformStyle: 'preserve-3d',
                 transform: `rotateX(${xRot}deg) rotateY(${yRot}deg)`,
@@ -287,58 +287,58 @@ export const ViewportCompass: React.FC<ViewportCompassProps> = ({
             >
               {/* TOP FACE with embedded 3x3 grid for TOP view, 4 top corners (NW, NE, SW, SE) and 4 top edges (N, E, S, W) */}
               <div 
-                className="absolute inset-0 grid grid-cols-[8px_1fr_8px] grid-rows-[8px_1fr_8px] border border-slate-350 bg-white/95"
-                style={{ transform: 'rotateX(90deg) translateZ(20px)', backfaceVisibility: 'hidden', width: '40px', height: '40px' }}
+                className="absolute inset-0 grid grid-cols-[6px_1fr_6px] grid-rows-[6px_1fr_6px] border border-slate-350 bg-white/95"
+                style={{ transform: 'rotateX(90deg) translateZ(16px)', backfaceVisibility: 'hidden', width: '32px', height: '32px' }}
               >
                 {/* Row 1 */}
                 <button 
                   onClick={() => onSnap3DCamera?.('NW')} 
-                  className="bg-slate-200 hover:bg-indigo-600 transition-colors cursor-pointer border-r border-b border-slate-300/40" 
+                  className="bg-slate-200 hover:bg-blue-600 transition-colors cursor-pointer border-r border-b border-slate-300/40" 
                   title="Snap to NW Corner" 
                 />
                 <button 
                   onClick={() => onSnap3DCamera?.('N')} 
-                  className="bg-slate-100 hover:bg-indigo-650 transition-colors cursor-pointer border-b border-slate-300/40" 
+                  className="bg-slate-100 hover:bg-blue-650 transition-colors cursor-pointer border-b border-slate-300/40" 
                   title="Snap to N Edge" 
                 />
                 <button 
                   onClick={() => onSnap3DCamera?.('NE')} 
-                  className="bg-slate-200 hover:bg-indigo-600 transition-colors cursor-pointer border-l border-b border-slate-300/40" 
+                  className="bg-slate-200 hover:bg-blue-600 transition-colors cursor-pointer border-l border-b border-slate-300/40" 
                   title="Snap to NE Corner" 
                 />
 
                 {/* Row 2 */}
                 <button 
                   onClick={() => onSnap3DCamera?.('W')} 
-                  className="bg-slate-100 hover:bg-indigo-650 transition-colors cursor-pointer border-r border-slate-300/40" 
+                  className="bg-slate-100 hover:bg-blue-650 transition-colors cursor-pointer border-r border-slate-300/40" 
                   title="Snap to W Edge" 
                 />
                 <button 
                   onClick={() => onSnap3DCamera?.('TOP')} 
-                  className="flex items-center justify-center text-[7px] font-black text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors select-none cursor-pointer"
+                  className="flex items-center justify-center text-[6px] font-black text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors select-none cursor-pointer"
                 >
                   TOP
                 </button>
                 <button 
                   onClick={() => onSnap3DCamera?.('E')} 
-                  className="bg-slate-100 hover:bg-indigo-650 transition-colors cursor-pointer border-l border-slate-300/40" 
+                  className="bg-slate-100 hover:bg-blue-650 transition-colors cursor-pointer border-l border-slate-300/40" 
                   title="Snap to E Edge" 
                 />
 
                 {/* Row 3 */}
                 <button 
                   onClick={() => onSnap3DCamera?.('SW')} 
-                  className="bg-slate-200 hover:bg-indigo-600 transition-colors cursor-pointer border-r border-t border-slate-300/40" 
+                  className="bg-slate-200 hover:bg-blue-600 transition-colors cursor-pointer border-r border-t border-slate-300/40" 
                   title="Snap to SW Corner" 
                 />
                 <button 
                   onClick={() => onSnap3DCamera?.('S')} 
-                  className="bg-slate-100 hover:bg-indigo-650 transition-colors cursor-pointer border-t border-slate-300/40" 
+                  className="bg-slate-100 hover:bg-blue-650 transition-colors cursor-pointer border-t border-slate-300/40" 
                   title="Snap to S Edge" 
                 />
                 <button 
                   onClick={() => onSnap3DCamera?.('SE')} 
-                  className="bg-slate-200 hover:bg-indigo-600 transition-colors cursor-pointer border-l border-t border-slate-300/40" 
+                  className="bg-slate-200 hover:bg-blue-600 transition-colors cursor-pointer border-l border-t border-slate-300/40" 
                   title="Snap to SE Corner" 
                 />
               </div>
@@ -346,8 +346,8 @@ export const ViewportCompass: React.FC<ViewportCompassProps> = ({
               {/* BOTTOM FACE */}
               <button
                 onClick={() => onSnap3DCamera?.('BOTTOM')}
-                className="absolute inset-0 flex items-center justify-center border border-slate-300 bg-slate-100/95 text-[7px] font-black text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors select-none cursor-pointer"
-                style={{ transform: 'rotateX(-90deg) translateZ(20px)', backfaceVisibility: 'hidden', width: '40px', height: '40px' }}
+                className="absolute inset-0 flex items-center justify-center border border-slate-300 bg-slate-100/95 text-[6px] font-black text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors select-none cursor-pointer"
+                style={{ transform: 'rotateX(-90deg) translateZ(16px)', backfaceVisibility: 'hidden', width: '32px', height: '32px' }}
                 title="Snap to Bottom View"
               >
                 BTM
@@ -355,92 +355,92 @@ export const ViewportCompass: React.FC<ViewportCompassProps> = ({
 
               {/* FRONT FACE (South) with vertical edges (SW, SE) */}
               <div 
-                className="absolute inset-0 grid grid-cols-[8px_1fr_8px] border border-slate-300 bg-white/95"
-                style={{ transform: 'translateZ(20px)', backfaceVisibility: 'hidden', width: '40px', height: '40px' }}
+                className="absolute inset-0 grid grid-cols-[6px_1fr_6px] border border-slate-300 bg-white/95"
+                style={{ transform: 'translateZ(16px)', backfaceVisibility: 'hidden', width: '32px', height: '32px' }}
               >
                 <button 
                   onClick={() => onSnap3DCamera?.('SW')} 
-                  className="bg-slate-100 hover:bg-indigo-650 transition-colors cursor-pointer border-r border-slate-300/40" 
+                  className="bg-slate-100 hover:bg-blue-650 transition-colors cursor-pointer border-r border-slate-300/40" 
                   title="Snap to SW Vertical Edge" 
                 />
                 <button 
                   onClick={() => onSnap3DCamera?.('S')} 
-                  className="flex items-center justify-center text-[7px] font-black text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors select-none cursor-pointer"
+                  className="flex items-center justify-center text-[6px] font-black text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors select-none cursor-pointer"
                 >
                   FRONT
                 </button>
                 <button 
                   onClick={() => onSnap3DCamera?.('SE')} 
-                  className="bg-slate-100 hover:bg-indigo-650 transition-colors cursor-pointer border-l border-slate-300/40" 
+                  className="bg-slate-100 hover:bg-blue-650 transition-colors cursor-pointer border-l border-slate-300/40" 
                   title="Snap to SE Vertical Edge" 
                 />
               </div>
 
               {/* BACK FACE (North) with vertical edges (NE, NW) */}
               <div 
-                className="absolute inset-0 grid grid-cols-[8px_1fr_8px] border border-slate-300 bg-white/95"
-                style={{ transform: 'rotateY(180deg) translateZ(20px)', backfaceVisibility: 'hidden', width: '40px', height: '40px' }}
+                className="absolute inset-0 grid grid-cols-[6px_1fr_6px] border border-slate-300 bg-white/95"
+                style={{ transform: 'rotateY(180deg) translateZ(16px)', backfaceVisibility: 'hidden', width: '32px', height: '32px' }}
               >
                 <button 
                   onClick={() => onSnap3DCamera?.('NE')} 
-                  className="bg-slate-100 hover:bg-indigo-650 transition-colors cursor-pointer border-r border-slate-300/40" 
+                  className="bg-slate-100 hover:bg-blue-650 transition-colors cursor-pointer border-r border-slate-300/40" 
                   title="Snap to NE Vertical Edge" 
                 />
                 <button 
                   onClick={() => onSnap3DCamera?.('N')} 
-                  className="flex items-center justify-center text-[7px] font-black text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors select-none cursor-pointer"
+                  className="flex items-center justify-center text-[6px] font-black text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors select-none cursor-pointer"
                 >
                   BACK
                 </button>
                 <button 
                   onClick={() => onSnap3DCamera?.('NW')} 
-                  className="bg-slate-100 hover:bg-indigo-650 transition-colors cursor-pointer border-l border-slate-300/40" 
+                  className="bg-slate-100 hover:bg-blue-650 transition-colors cursor-pointer border-l border-slate-300/40" 
                   title="Snap to NW Vertical Edge" 
                 />
               </div>
 
               {/* LEFT FACE (West) with vertical edges (NW, SW) */}
               <div 
-                className="absolute inset-0 grid grid-cols-[8px_1fr_8px] border border-slate-300 bg-slate-50/95"
-                style={{ transform: 'rotateY(-90deg) translateZ(20px)', backfaceVisibility: 'hidden', width: '40px', height: '40px' }}
+                className="absolute inset-0 grid grid-cols-[6px_1fr_6px] border border-slate-300 bg-slate-50/95"
+                style={{ transform: 'rotateY(-90deg) translateZ(16px)', backfaceVisibility: 'hidden', width: '32px', height: '32px' }}
               >
                 <button 
                   onClick={() => onSnap3DCamera?.('NW')} 
-                  className="bg-slate-100 hover:bg-indigo-650 transition-colors cursor-pointer border-r border-slate-300/40" 
+                  className="bg-slate-100 hover:bg-blue-650 transition-colors cursor-pointer border-r border-slate-300/40" 
                   title="Snap to NW Vertical Edge" 
                 />
                 <button 
                   onClick={() => onSnap3DCamera?.('W')} 
-                  className="flex items-center justify-center text-[7px] font-black text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors select-none cursor-pointer"
+                  className="flex items-center justify-center text-[6px] font-black text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors select-none cursor-pointer"
                 >
                   LEFT
                 </button>
                 <button 
                   onClick={() => onSnap3DCamera?.('SW')} 
-                  className="bg-slate-100 hover:bg-indigo-650 transition-colors cursor-pointer border-l border-slate-300/40" 
+                  className="bg-slate-100 hover:bg-blue-650 transition-colors cursor-pointer border-l border-slate-300/40" 
                   title="Snap to SW Vertical Edge" 
                 />
               </div>
 
               {/* RIGHT FACE (East) with vertical edges (SE, NE) */}
               <div 
-                className="absolute inset-0 grid grid-cols-[8px_1fr_8px] border border-slate-300 bg-slate-50/95"
-                style={{ transform: 'rotateY(90deg) translateZ(20px)', backfaceVisibility: 'hidden', width: '40px', height: '40px' }}
+                className="absolute inset-0 grid grid-cols-[6px_1fr_6px] border border-slate-300 bg-slate-50/95"
+                style={{ transform: 'rotateY(90deg) translateZ(16px)', backfaceVisibility: 'hidden', width: '32px', height: '32px' }}
               >
                 <button 
                   onClick={() => onSnap3DCamera?.('SE')} 
-                  className="bg-slate-100 hover:bg-indigo-650 transition-colors cursor-pointer border-r border-slate-300/40" 
+                  className="bg-slate-100 hover:bg-blue-650 transition-colors cursor-pointer border-r border-slate-300/40" 
                   title="Snap to SE Vertical Edge" 
                 />
                 <button 
                   onClick={() => onSnap3DCamera?.('E')} 
-                  className="flex items-center justify-center text-[7px] font-black text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors select-none cursor-pointer"
+                  className="flex items-center justify-center text-[6px] font-black text-slate-500 hover:bg-blue-50 hover:text-blue-600 transition-colors select-none cursor-pointer"
                 >
                   RIGHT
                 </button>
                 <button 
                   onClick={() => onSnap3DCamera?.('NE')} 
-                  className="bg-slate-100 hover:bg-indigo-650 transition-colors cursor-pointer border-l border-slate-300/40" 
+                  className="bg-slate-100 hover:bg-blue-650 transition-colors cursor-pointer border-l border-slate-300/40" 
                   title="Snap to NE Vertical Edge" 
                 />
               </div>
@@ -451,39 +451,39 @@ export const ViewportCompass: React.FC<ViewportCompassProps> = ({
 
       {/* Manual Reset / Rotate Buttons (always visible) */}
       <div 
-        className={`flex items-center gap-1.5 self-stretch justify-center border-t border-slate-100 pt-1.5 mt-0.5 opacity-100 ${
-          viewMode === '2D' ? 'h-6' : 'h-auto'
+        className={`flex items-center gap-1 self-stretch justify-center border-t border-slate-100 pt-1 opacity-100 ${
+          viewMode === '2D' ? 'h-5' : 'h-auto'
         }`}
       >
         {viewMode === '2D' ? (
           <>
-            <button 
+            <button
               onClick={handleRotateCCW}
               title="Rotate Left 90°"
-              className="p-1 text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded transition-colors cursor-pointer"
+              className="p-0.5 text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded transition-colors cursor-pointer"
             >
-              <RotateCcw size={12} />
+              <RotateCcw size={10} />
             </button>
-            <button 
+            <button
               onClick={handleResetAngle}
-              className="text-[10px] font-bold min-w-[32px] px-1 text-slate-500 hover:text-blue-600 bg-slate-50 hover:bg-blue-50 rounded select-none tabular-nums cursor-pointer"
+              className="text-[10px] font-bold min-w-[28px] px-1 text-slate-500 hover:text-blue-600 bg-slate-50 hover:bg-blue-50 rounded select-none tabular-nums cursor-pointer"
               title="Reset angle to 0°"
             >
               {displayAngle !== null ? displayAngle : Math.round(canvasAngle % 360 + 360) % 360}°
             </button>
-            <button 
+            <button
               onClick={handleRotateCW}
               title="Rotate Right 90°"
-              className="p-1 text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded transition-colors cursor-pointer"
+              className="p-0.5 text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded transition-colors cursor-pointer"
             >
-              <RotateCw size={12} />
+              <RotateCw size={10} />
             </button>
           </>
         ) : (
-          <div className="flex flex-col gap-1.5 w-full">
-            <button 
+          <div className="flex flex-col gap-1 w-full">
+            <button
               onClick={onToggleParallel}
-              className="text-[9px] font-bold px-2 py-1 bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-600 rounded flex items-center justify-center uppercase transition-colors cursor-pointer"
+              className="text-[8px] font-bold px-1.5 py-0.5 bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-600 rounded flex items-center justify-center uppercase transition-colors cursor-pointer"
             >
               {isParallel ? 'Parallel' : 'Perspective'}
             </button>
@@ -492,7 +492,7 @@ export const ViewportCompass: React.FC<ViewportCompassProps> = ({
       </div>
 
       {/* Direction / Elevation View Buttons (N, S, E, W) */}
-      <div className="flex items-center gap-1 self-stretch justify-between border-t border-slate-100 pt-1.5 mt-0.5">
+      <div className="flex items-center gap-1 self-stretch justify-between border-t border-slate-100 pt-1">
         {(['N', 'S', 'E', 'W'] as const).map(dir => {
           const elevationViewId = `elevation-${dir.toLowerCase()}` as DrawingViewId;
           const isActive = viewMode === '2D' && activeDrawingView === elevationViewId;

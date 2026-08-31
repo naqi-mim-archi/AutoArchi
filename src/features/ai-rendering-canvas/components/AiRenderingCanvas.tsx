@@ -308,7 +308,7 @@ export const AiRenderingCanvas: React.FC<AiRenderingCanvasProps> = ({
         <div className="absolute bottom-4 right-4 flex items-center gap-1.5 bg-slate-900/90 border border-slate-800/80 p-1 rounded-xl backdrop-blur-md shadow-2xl z-20 text-xs">
           <button
             onClick={handleCreateNode}
-            className="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[10px] font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
+            className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-[10px] font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
             title="Create a new blank rendering node on canvas"
           >
             <Plus size={14} />

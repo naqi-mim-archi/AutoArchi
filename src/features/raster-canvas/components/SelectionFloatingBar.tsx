@@ -31,7 +31,7 @@ export const SelectionFloatingBar: React.FC<SelectionFloatingBarProps> = ({
       style={{ left: screenX, top: Math.max(12, screenY), transform: 'translateX(-50%)' }}
       className="absolute z-30 flex items-center gap-1 rounded-xl border border-slate-700 bg-slate-900/95 p-1 shadow-2xl backdrop-blur-md"
     >
-      <button onClick={onOpenAiEdit} className="flex cursor-pointer items-center gap-1 rounded-lg bg-indigo-600 px-2.5 py-1.5 text-[11px] font-bold text-white hover:bg-indigo-500" title="Generate an AI edit inside this selection">
+      <button onClick={onOpenAiEdit} className="flex cursor-pointer items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1.5 text-[11px] font-bold text-white hover:bg-blue-500" title="Generate an AI edit inside this selection">
         <Sparkles size={12} /> <span>AI Edit</span>
       </button>
       <button onClick={onTransform} className="flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 text-[11px] font-medium text-slate-300 hover:bg-slate-800 hover:text-white" title="Transform selection">

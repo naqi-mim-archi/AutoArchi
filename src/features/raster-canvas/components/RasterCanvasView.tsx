@@ -348,7 +348,7 @@ export const RasterCanvasView: React.FC<RasterCanvasViewProps> = ({
     ctx.clearRect(0, 0, overlay.width, overlay.height);
 
     if (store.selection.active && store.selection.maskCanvas) {
-      // Render selection outline with semi-transparent indigo fill
+      // Render selection outline with semi-transparent blue fill
       ctx.save();
       ctx.globalAlpha = 0.28;
       ctx.drawImage(store.selection.maskCanvas, 0, 0);
@@ -941,8 +941,8 @@ export const RasterCanvasView: React.FC<RasterCanvasViewProps> = ({
         >
           {/* Drag Over Visual Highlight */}
           {isDragOver && (
-            <div className="absolute inset-4 z-40 border-2 border-dashed border-indigo-500 bg-indigo-950/70 rounded-2xl flex flex-col items-center justify-center gap-3 backdrop-blur-sm pointer-events-none animate-in fade-in duration-150">
-              <Upload size={36} className="text-indigo-400 animate-bounce" />
+            <div className="absolute inset-4 z-40 border-2 border-dashed border-blue-500 bg-blue-950/70 rounded-2xl flex flex-col items-center justify-center gap-3 backdrop-blur-sm pointer-events-none animate-in fade-in duration-150">
+              <Upload size={36} className="text-blue-400 animate-bounce" />
               <p className="text-sm font-bold text-white">Drop images or a PDF to place as editable layers</p>
             </div>
           )}
@@ -1083,7 +1083,7 @@ export const RasterCanvasView: React.FC<RasterCanvasViewProps> = ({
                   onMouseLeave={() => store.setIsComparing(false)}
                   className={`px-2 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all cursor-pointer ${
                     store.isComparing
-                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
                   }`}
                   title="Hold to compare with original image"
@@ -1103,7 +1103,7 @@ export const RasterCanvasView: React.FC<RasterCanvasViewProps> = ({
           <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
             <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
               <div className="flex items-center gap-2">
-                <ImageIcon size={16} className="text-purple-400" />
+                <ImageIcon size={16} className="text-blue-400" />
                 <h3 className="text-sm font-bold text-slate-100">Load Render Output</h3>
               </div>
               <button
@@ -1123,12 +1123,12 @@ export const RasterCanvasView: React.FC<RasterCanvasViewProps> = ({
                       loadImageToCanvas(item.url, item.name, true);
                       setIsStudioModalOpen(false);
                     }}
-                    className="group relative rounded-xl overflow-hidden border border-slate-800 hover:border-indigo-500 bg-slate-950 p-2 cursor-pointer transition-all hover:scale-102 shadow-sm"
+                    className="group relative rounded-xl overflow-hidden border border-slate-800 hover:border-blue-500 bg-slate-950 p-2 cursor-pointer transition-all hover:scale-102 shadow-sm"
                   >
                     <div className="aspect-square w-full rounded-lg overflow-hidden bg-slate-900 mb-2 flex items-center justify-center">
                       <img src={item.url} alt={item.name} className="w-full h-full object-cover" />
                     </div>
-                    <div className="text-[11px] font-semibold text-slate-200 truncate group-hover:text-indigo-300">
+                    <div className="text-[11px] font-semibold text-slate-200 truncate group-hover:text-blue-300">
                       {item.name}
                     </div>
                     {item.category && (

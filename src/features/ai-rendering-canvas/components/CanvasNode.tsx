@@ -177,17 +177,17 @@ const CanvasNodeComponent: React.FC<CanvasNodeProps> = ({
       onPointerUp={handleNodePointerUp}
       className={`canvas-node absolute flex max-h-[calc(100vh-9rem)] flex-col overflow-hidden select-none rounded-2xl border transition-colors duration-150 ${
         isConnecting && isConnectionAllowed
-          ? 'bg-slate-900/95 border-indigo-400 ring-2 ring-indigo-400/90 shadow-2xl shadow-indigo-500/50 cursor-pointer animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]'
+          ? 'bg-slate-900/95 border-blue-400 ring-2 ring-blue-400/90 shadow-2xl shadow-blue-500/50 cursor-pointer animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]'
           : isConnecting && (!isConnectionAllowed || isSelf)
           ? 'bg-slate-900/70 border-slate-800/80 opacity-50 cursor-not-allowed'
           : isSelected
-          ? 'bg-slate-900/95 border-indigo-500 shadow-2xl shadow-indigo-500/25 ring-1 ring-indigo-500/60 z-20'
+          ? 'bg-slate-900/95 border-blue-500 shadow-2xl shadow-blue-500/25 ring-1 ring-blue-500/60 z-20'
           : 'bg-slate-900/90 border-slate-800 hover:border-slate-700 shadow-xl shadow-black/40 z-10'
       }`}
     >
       {/* Visual Drop Target Badge during connection */}
       {isConnecting && isConnectionAllowed && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-indigo-600 border border-indigo-400 text-[9px] font-bold text-white shadow-lg shadow-indigo-500/50 flex items-center gap-1 z-30 pointer-events-none animate-bounce">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-blue-600 border border-blue-400 text-[9px] font-bold text-white shadow-lg shadow-blue-500/50 flex items-center gap-1 z-30 pointer-events-none animate-bounce">
           <Sparkles size={10} />
           <span>Drop to connect as input</span>
         </div>
@@ -218,13 +218,13 @@ const CanvasNodeComponent: React.FC<CanvasNodeProps> = ({
                   : "Fork in (Create input node) OR drop connection here"
               }
             >
-              <div className="w-3.5 h-3.5 rounded-full bg-slate-950 border-2 border-indigo-400 group-hover:border-white group-hover:scale-125 transition-all shadow-md flex items-center justify-center">
-                <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 group-hover:bg-white" />
+              <div className="w-3.5 h-3.5 rounded-full bg-slate-950 border-2 border-blue-400 group-hover:border-white group-hover:scale-125 transition-all shadow-md flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 group-hover:bg-white" />
               </div>
 
               {/* Badge showing incoming connection count */}
               {incomingNodes.length > 0 && (
-                <div className="absolute -top-1.5 -right-1 px-1 min-w-[14px] h-[14px] rounded-full bg-indigo-600 border border-indigo-300 text-[8px] font-bold text-white shadow-md flex items-center justify-center pointer-events-none">
+                <div className="absolute -top-1.5 -right-1 px-1 min-w-[14px] h-[14px] rounded-full bg-blue-600 border border-blue-300 text-[8px] font-bold text-white shadow-md flex items-center justify-center pointer-events-none">
                   {incomingNodes.length}
                 </div>
               )}
@@ -249,15 +249,15 @@ const CanvasNodeComponent: React.FC<CanvasNodeProps> = ({
         }}
         title="Fork out (Branch node) OR drag to connect"
       >
-        <div className="w-3.5 h-3.5 rounded-full bg-slate-950 border-2 border-indigo-400 group-hover:border-white group-hover:scale-125 transition-all shadow-md flex items-center justify-center">
-          <Plus size={8} className="text-indigo-400 group-hover:text-white" />
+        <div className="w-3.5 h-3.5 rounded-full bg-slate-950 border-2 border-blue-400 group-hover:border-white group-hover:scale-125 transition-all shadow-md flex items-center justify-center">
+          <Plus size={8} className="text-blue-400 group-hover:text-white" />
         </div>
       </div>
 
       {/* 3. Node Header */}
       <div className={`shrink-0 p-2.5 border-b border-slate-800/80 flex items-center justify-between gap-2 bg-slate-950/50 rounded-t-2xl ${isConnecting ? 'pointer-events-none' : ''}`}>
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-indigo-400" />
+          <span className="w-2 h-2 rounded-full bg-blue-400" />
           <span className="text-[11px] font-bold text-slate-300">{currentHub === 'gen_3d' ? '3D Generator Node' : 'Render Node'}</span>
         </div>
 
@@ -278,15 +278,15 @@ const CanvasNodeComponent: React.FC<CanvasNodeProps> = ({
       <div className={`min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 space-y-3 scrollbar-thin ${isConnecting ? 'pointer-events-none' : ''}`}>
         {/* STATE A: Running Job Animation */}
         {node.status === 'running' ? (
-          <div className="rounded-xl border border-indigo-500/40 bg-indigo-950/20 p-6 flex flex-col items-center justify-center gap-2 aspect-square animate-pulse text-center">
-            <Loader2 size={28} className="text-indigo-400 animate-spin" />
-            <span className="text-xs font-semibold text-indigo-300">Rendering Scene...</span>
-            <span className="text-[10px] text-indigo-400/80 font-mono">Running Vertex AI Multi-Modal</span>
+          <div className="rounded-xl border border-blue-500/40 bg-blue-950/20 p-6 flex flex-col items-center justify-center gap-2 aspect-square animate-pulse text-center">
+            <Loader2 size={28} className="text-blue-400 animate-spin" />
+            <span className="text-xs font-semibold text-blue-300">Rendering Scene...</span>
+            <span className="text-[10px] text-blue-400/80 font-mono">Running Vertex AI Multi-Modal</span>
           </div>
         ) : isBlankCard && !isSelected ? (
           /* STATE B: Initial Blank Card (Unselected) */
           <div className="py-4 flex flex-col items-center justify-center text-center space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 text-indigo-300 flex items-center justify-center shadow-lg">
+            <div className="w-14 h-14 rounded-2xl bg-blue-600/20 border border-blue-500/40 text-blue-300 flex items-center justify-center shadow-lg">
               <Sparkles size={24} />
             </div>
             <div>
@@ -315,7 +315,7 @@ const CanvasNodeComponent: React.FC<CanvasNodeProps> = ({
 
                   {/* Upload Badge for input images */}
                   {displayImageUrl === node.inputImageUrl && !currentImageUrl && (
-                    <div className="absolute top-2 left-2 bg-slate-900/80 backdrop-blur-md px-2 py-1 rounded-md border border-slate-700 flex items-center gap-1.5 z-10 text-[10px] font-bold text-indigo-300 shadow-sm">
+                    <div className="absolute top-2 left-2 bg-slate-900/80 backdrop-blur-md px-2 py-1 rounded-md border border-slate-700 flex items-center gap-1.5 z-10 text-[10px] font-bold text-blue-300 shadow-sm">
                       <Upload size={12} />
                       <span>Uploaded Sketch</span>
                     </div>
@@ -323,7 +323,7 @@ const CanvasNodeComponent: React.FC<CanvasNodeProps> = ({
 
                   {/* Hover Badge: Double Click prompt */}
                   <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover/img:opacity-100 flex flex-col items-center justify-center gap-1 text-white transition-opacity duration-150 backdrop-blur-[2px]">
-                    <Edit3 size={20} className="text-indigo-400" />
+                    <Edit3 size={20} className="text-blue-400" />
                     <span className="text-[11px] font-bold">Double-Click to Edit</span>
                     <span className="text-[9px] text-slate-300">Opens image editor</span>
                   </div>
@@ -334,7 +334,7 @@ const CanvasNodeComponent: React.FC<CanvasNodeProps> = ({
                       e.stopPropagation();
                       onEditInRasterCanvas(node.id, displayImageUrl!);
                     }}
-                    className="absolute top-2 right-2 p-1.5 bg-slate-900/80 hover:bg-indigo-600 text-slate-300 hover:text-white rounded-lg opacity-0 group-hover/img:opacity-100 transition-all z-10 backdrop-blur-md border border-slate-700 hover:border-indigo-500"
+                    className="absolute top-2 right-2 p-1.5 bg-slate-900/80 hover:bg-blue-600 text-slate-300 hover:text-white rounded-lg opacity-0 group-hover/img:opacity-100 transition-all z-10 backdrop-blur-md border border-slate-700 hover:border-blue-500"
                     title="View Full Screen (Editor)"
                   >
                     <Maximize2 size={14} />
@@ -376,7 +376,7 @@ const CanvasNodeComponent: React.FC<CanvasNodeProps> = ({
                 {/* Prompt snippet (only shown when unselected or if no configurator) */}
                 {!isSelected && node.prompt && (
                   <div className="bg-slate-950/60 p-2 rounded-lg border border-slate-800/80 text-[10px] text-slate-300 line-clamp-2 leading-relaxed">
-                    <span className="text-indigo-400 font-semibold mr-1">Prompt:</span>
+                    <span className="text-blue-400 font-semibold mr-1">Prompt:</span>
                     {node.prompt}
                   </div>
                 )}

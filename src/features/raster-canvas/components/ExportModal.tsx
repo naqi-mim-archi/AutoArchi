@@ -59,7 +59,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         {/* Header */}
         <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60">
           <div className="flex items-center gap-2">
-            <FileImage size={16} className="text-indigo-400" />
+            <FileImage size={16} className="text-blue-400" />
             <h3 className="text-sm font-bold text-slate-100">Export Canvas</h3>
           </div>
           <button
@@ -86,7 +86,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                   onClick={() => setFormat(f.id as any)}
                   className={`p-2.5 rounded-xl border text-center font-semibold transition-all cursor-pointer ${
                     format === f.id
-                      ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300'
+                      ? 'bg-blue-600/20 border-blue-500 text-blue-300'
                       : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
                   }`}
                 >
@@ -110,7 +110,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                   onClick={() => setScale(item.s)}
                   className={`p-2.5 rounded-xl border text-center font-semibold transition-all cursor-pointer ${
                     scale === item.s
-                      ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300'
+                      ? 'bg-blue-600/20 border-blue-500 text-blue-300'
                       : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
                   }`}
                 >
@@ -136,7 +136,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                 max="100"
                 value={quality}
                 onChange={e => setQuality(Number(e.target.value))}
-                className="w-full accent-indigo-500 h-1 cursor-pointer"
+                className="w-full accent-blue-500 h-1 cursor-pointer"
               />
             </div>
           )}
@@ -153,7 +153,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           <button
             onClick={handleDownload}
             disabled={isExporting}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-5 py-2 rounded-xl shadow-lg shadow-indigo-600/20 flex items-center gap-1.5 transition-all cursor-pointer"
+            className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-5 py-2 rounded-xl shadow-lg shadow-blue-600/20 flex items-center gap-1.5 transition-all cursor-pointer"
           >
             <Download size={13} />
             <span>Download {format.toUpperCase()}</span>

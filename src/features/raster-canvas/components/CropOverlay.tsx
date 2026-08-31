@@ -434,7 +434,7 @@ export const CropOverlay: React.FC<CropOverlayProps> = ({ store }) => {
 
         {/* 5. Dimension & Ratio Badge (Floating above top-left of crop box) */}
         <div className="absolute -top-8 left-0 flex items-center gap-1.5 bg-slate-950/90 text-white border border-slate-700/80 px-2 py-0.5 rounded-md text-[11px] font-mono shadow-lg backdrop-blur-sm pointer-events-none">
-          <span className="font-bold text-indigo-400">{roundedW} × {roundedH}</span>
+          <span className="font-bold text-blue-400">{roundedW} × {roundedH}</span>
           <span className="text-slate-500">•</span>
           <span className="text-slate-300 capitalize">{displayRatio}</span>
         </div>

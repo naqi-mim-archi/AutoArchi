@@ -55,7 +55,7 @@ export const SelectionPromptBar: React.FC<SelectionPromptBarProps> = ({
         maxWidth: "calc(100% - 16px)",
         zIndex: 35,
       }}
-      className="bg-slate-900/98 border border-indigo-500/50 rounded-xl shadow-2xl backdrop-blur-md animate-in fade-in duration-150"
+      className="bg-slate-900/98 border border-blue-500/50 rounded-xl shadow-2xl backdrop-blur-md animate-in fade-in duration-150"
       onMouseDown={e => e.stopPropagation()}
     >
       {/* Quick Action Pills */}
@@ -77,7 +77,7 @@ export const SelectionPromptBar: React.FC<SelectionPromptBarProps> = ({
       </div>
       {/* Free-text Prompt Input */}
       <form onSubmit={handleSubmit} className="flex items-center gap-2 px-2.5 py-2">
-        <Sparkles size={13} className="text-indigo-400 shrink-0" />
+        <Sparkles size={13} className="text-blue-400 shrink-0" />
         <input
           ref={inputRef}
           type="text"
@@ -89,7 +89,7 @@ export const SelectionPromptBar: React.FC<SelectionPromptBarProps> = ({
         <button
           type="submit"
           disabled={!prompt.trim()}
-          className="p-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-30 text-white transition-all cursor-pointer shrink-0"
+          className="p-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-30 text-white transition-all cursor-pointer shrink-0"
           title="Generate with AI"
         >
           <Send size={11} />

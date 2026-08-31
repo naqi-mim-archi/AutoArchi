@@ -66,7 +66,7 @@ export const ImageFullscreenModal: React.FC<ImageFullscreenModalProps> = ({
           </span>
           <button
             onClick={() => onEditInRasterCanvas(currentImage)}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-sm transition-colors shadow-lg shadow-indigo-600/20"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold text-sm transition-colors shadow-lg shadow-blue-600/20"
           >
             <Edit3 size={16} />
             <span>Edit Image</span>

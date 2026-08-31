@@ -897,18 +897,18 @@ const ChatV2SummaryEditor = ({
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full h-full min-h-[480px] overflow-y-auto pr-2 custom-scrollbar">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full h-full min-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
       {/* Left Column: Metadata Controls */}
-      <div className="flex flex-col gap-5">
-        
+      <div className="flex flex-col gap-2.5">
+
         {/* Program (Category & Type) Dropdowns */}
-        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Program (Category & Type)</label>
+        <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1.5">
+          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Program (Category & Type)</label>
           
           <div className="grid grid-cols-1 gap-2">
             {/* Group selector */}
             <select 
-              className="w-full text-xs font-semibold text-indigo-700 bg-white border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-indigo-500 outline-none"
+              className="w-full text-xs font-semibold text-blue-700 bg-white border border-slate-200 rounded-lg p-1 focus:ring-1 focus:ring-blue-500 outline-none"
               value={programState.group} 
               onChange={e => handleProgramChange({ group: e.target.value, category: "", type: "", variant: "" })}
             >
@@ -920,7 +920,7 @@ const ChatV2SummaryEditor = ({
 
             {programState.group === "Other" && (
               <input 
-                className="w-full text-xs font-semibold bg-white border border-slate-200 rounded-lg p-2 outline-none"
+                className="w-full text-xs font-semibold bg-white border border-slate-200 rounded-lg p-1 outline-none"
                 placeholder="Enter custom program group"
                 value={programState.customGroup}
                 onChange={e => handleProgramChange({ customGroup: e.target.value })}
@@ -930,7 +930,7 @@ const ChatV2SummaryEditor = ({
             {/* Category selector */}
             {programState.group !== "Other" && (
               <select 
-                className="w-full text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-indigo-500 outline-none"
+                className="w-full text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-1 focus:ring-1 focus:ring-blue-500 outline-none"
                 value={programState.category} 
                 onChange={e => handleProgramChange({ category: e.target.value, type: "", variant: "" })}
               >
@@ -942,7 +942,7 @@ const ChatV2SummaryEditor = ({
 
             {programState.category === "Other" && (
               <input 
-                className="w-full text-xs font-semibold bg-white border border-slate-200 rounded-lg p-2 outline-none"
+                className="w-full text-xs font-semibold bg-white border border-slate-200 rounded-lg p-1 outline-none"
                 placeholder="Enter custom category"
                 value={programState.customCategory}
                 onChange={e => handleProgramChange({ customCategory: e.target.value })}
@@ -952,7 +952,7 @@ const ChatV2SummaryEditor = ({
             {/* Type selector */}
             {programState.group !== "Other" && programState.category !== "Other" && (
               <select 
-                className="w-full text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-indigo-500 outline-none"
+                className="w-full text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-1 focus:ring-1 focus:ring-blue-500 outline-none"
                 value={programState.type} 
                 onChange={e => handleProgramChange({ type: e.target.value, variant: "" })}
               >
@@ -964,7 +964,7 @@ const ChatV2SummaryEditor = ({
 
             {programState.type === "Other" && (
               <input 
-                className="w-full text-xs font-semibold bg-white border border-slate-200 rounded-lg p-2 outline-none"
+                className="w-full text-xs font-semibold bg-white border border-slate-200 rounded-lg p-1 outline-none"
                 placeholder="Enter custom type"
                 value={programState.customType}
                 onChange={e => handleProgramChange({ customType: e.target.value })}
@@ -974,7 +974,7 @@ const ChatV2SummaryEditor = ({
             {/* Variant selector */}
             {programState.group !== "Other" && programState.category !== "Other" && programState.type !== "Other" && variantOptions.length > 0 && (
               <select 
-                className="w-full text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-indigo-500 outline-none"
+                className="w-full text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-1 focus:ring-1 focus:ring-blue-500 outline-none"
                 value={programState.variant} 
                 onChange={e => handleProgramChange({ variant: e.target.value })}
               >
@@ -986,7 +986,7 @@ const ChatV2SummaryEditor = ({
 
             {programState.variant === "Other" && (
               <input 
-                className="w-full text-xs font-semibold bg-white border border-slate-200 rounded-lg p-2 outline-none"
+                className="w-full text-xs font-semibold bg-white border border-slate-200 rounded-lg p-1 outline-none"
                 placeholder="Enter custom variant"
                 value={programState.customVariant}
                 onChange={e => handleProgramChange({ customVariant: e.target.value })}
@@ -996,13 +996,13 @@ const ChatV2SummaryEditor = ({
         </div>
 
         {/* Size Inputs */}
-        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Size (Area & Dimensions)</label>
+        <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1.5">
+          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Size (Area & Dimensions)</label>
           <div className="grid grid-cols-3 gap-2">
             <div className="col-span-2">
               <label className="text-[10px] font-bold text-slate-400 block mb-0.5">Area Value</label>
               <input 
-                className="w-full text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-2 outline-none"
+                className="w-full text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-1 outline-none"
                 value={sizeState.areaVal} 
                 onChange={e => handleSizeChange({ areaVal: e.target.value })} 
                 placeholder="Area e.g. 1000"
@@ -1011,7 +1011,7 @@ const ChatV2SummaryEditor = ({
             <div>
               <label className="text-[10px] font-bold text-slate-400 block mb-0.5">Unit</label>
               <select 
-                className="w-full text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-2 outline-none"
+                className="w-full text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-1 outline-none"
                 value={sizeState.areaUnit} 
                 onChange={e => handleUnitChange(e.target.value)}
               >
@@ -1028,15 +1028,15 @@ const ChatV2SummaryEditor = ({
               )}
             </div>
             <div className="flex items-center gap-2">
-              <input 
-                className="w-1/2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-2 outline-none"
-                value={sizeState.width.replace(/['m]/g, '')} 
-                onChange={e => handleSizeChange({ width: formatDimensionWithUnit(e.target.value, sizeState.areaUnit) })} 
+              <input
+                className="w-1/2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-1 outline-none"
+                value={sizeState.width.replace(/['m]/g, '')}
+                onChange={e => handleSizeChange({ width: formatDimensionWithUnit(e.target.value, sizeState.areaUnit) })}
                 placeholder="Width"
               />
               <span className="text-slate-400 text-xs font-bold">x</span>
-              <input 
-                className="w-1/2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-2 outline-none"
+              <input
+                className="w-1/2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-1 outline-none"
                 value={sizeState.height.replace(/['m]/g, '')} 
                 onChange={e => handleSizeChange({ height: formatDimensionWithUnit(e.target.value, sizeState.areaUnit) })} 
                 placeholder="Depth"
@@ -1050,7 +1050,7 @@ const ChatV2SummaryEditor = ({
             <div>
               <label className="text-[10px] font-bold text-slate-400 block mb-0.5">Envelope Scope</label>
               <select
-                className="w-full text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-2 outline-none"
+                className="w-full text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-1 outline-none"
                 value={text4cBrief.dimensions.envelope.scope}
                 onChange={e => onText4cBriefChange({
                   ...text4cBrief,
@@ -1101,7 +1101,7 @@ const ChatV2SummaryEditor = ({
                         ? setText4eRectangularBoundaryLock(rectangularBrief as ConfirmedText4eBrief, event.target.checked)
                         : setText4dRectangularBoundaryLock(rectangularBrief as ConfirmedText4dBrief, event.target.checked))}
                   />
-                  <div className="w-9 h-5 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                  <div className="w-9 h-5 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
                 </label>
               </div>
               <p className="mt-1.5 text-[10px] font-medium leading-relaxed text-slate-700">
@@ -1114,11 +1114,11 @@ const ChatV2SummaryEditor = ({
         </div>
 
         {/* Style, Floors, and Labels */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-2">Planning Style</label>
+        <div className="grid grid-cols-2 gap-2.5">
+          <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Planning Style</label>
             <select
-              className="w-full text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-2 outline-none"
+              className="w-full text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-1 outline-none"
               value={data.style}
               onChange={e => updateField('style', e.target.value)}
             >
@@ -1129,10 +1129,10 @@ const ChatV2SummaryEditor = ({
             </select>
           </div>
 
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-2">Floors</label>
+          <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1.5">Floors</label>
             <div className="flex items-center gap-2">
-              <button 
+              <button
                 type="button"
                 onClick={() => {
                   const count = Math.max(1, parseFloorsField(data.floors) - 1);
@@ -1140,12 +1140,12 @@ const ChatV2SummaryEditor = ({
                 }}
                 className="p-1 bg-white border border-slate-200 rounded hover:bg-slate-100 transition-colors"
               >
-                <Minus size={14} />
+                <Minus size={12} />
               </button>
               <span className="flex-1 text-center font-bold text-xs text-slate-700">
                 {parseFloorsField(data.floors)} Floors
               </span>
-              <button 
+              <button
                 type="button"
                 onClick={() => {
                   const count = parseFloorsField(data.floors) + 1;
@@ -1153,14 +1153,14 @@ const ChatV2SummaryEditor = ({
                 }}
                 className="p-1 bg-white border border-slate-200 rounded hover:bg-slate-100 transition-colors"
               >
-                <Plus size={14} />
+                <Plus size={12} />
               </button>
             </div>
           </div>
         </div>
 
-        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Room Labels Rendering</span>
+        <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex items-center justify-between">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Room Labels Rendering</span>
           <label className="relative inline-flex items-center cursor-pointer">
             <input 
               type="checkbox" 
@@ -1168,20 +1168,20 @@ const ChatV2SummaryEditor = ({
               checked={data.labels.includes('ON')}
               onChange={e => updateField('labels', e.target.checked ? '\u2705 Room Labels (ON)' : '\u274c Room Labels (OFF)')}
             />
-            <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+            <div className="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
           </label>
         </div>
 
       </div>
 
       {/* Right Column: Rooms & Spaces + Adjacency flow */}
-      <div className="flex flex-col gap-5">
-        
+      <div className="flex flex-col gap-2.5">
+
         {/* Rooms & Spaces Editor */}
-        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col flex-1 min-h-[220px]">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-3">Rooms & Spaces</label>
-          
-          <div className="flex-1 overflow-y-auto max-h-[160px] mb-3 pr-1 custom-scrollbar">
+        <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex flex-col flex-1 min-h-[170px]">
+          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-2">Rooms & Spaces</label>
+
+          <div className="flex-1 overflow-y-auto max-h-[120px] mb-2 pr-1 custom-scrollbar">
             <div className="flex flex-wrap gap-2">
               {parsedRooms.map((room, index) => (
                 <div key={index} className="flex items-center gap-1 bg-white border border-slate-200 text-[11px] font-semibold pl-1.5 pr-1 py-0.5 rounded-full shadow-sm">
@@ -1192,7 +1192,7 @@ const ChatV2SummaryEditor = ({
                   >
                     <Minus size={10} />
                   </button>
-                  <span className="text-indigo-600 font-bold px-0.5">{room.count}</span>
+                  <span className="text-blue-600 font-bold px-0.5">{room.count}</span>
                   <button
                     type="button" 
                     onClick={() => handleRoomCountChange(index, 1)}
@@ -1215,34 +1215,34 @@ const ChatV2SummaryEditor = ({
             </div>
           </div>
 
-          <div className="flex gap-2 border-t border-slate-200 pt-3">
-            <input 
-              className="flex-1 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-2 outline-none"
+          <div className="flex gap-2 border-t border-slate-200 pt-2">
+            <input
+              className="flex-1 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg p-1 outline-none"
               placeholder="e.g. Master Bedroom"
               value={newRoomName}
               onChange={e => setNewRoomName(e.target.value)}
             />
-            <input 
-              className="w-1/3 text-xs text-slate-500 bg-white border border-slate-200 rounded-lg p-2 outline-none"
+            <input
+              className="w-1/3 text-xs text-slate-500 bg-white border border-slate-200 rounded-lg p-1 outline-none"
               placeholder="details (e.g. ensuite)"
               value={newRoomDetails}
               onChange={e => setNewRoomDetails(e.target.value)}
             />
-            <button 
+            <button
               type="button"
               onClick={handleAddRoom}
-              className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors flex items-center justify-center"
+              className="p-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center"
             >
-              <Plus size={16} />
+              <Plus size={13} />
             </button>
           </div>
         </div>
 
         {/* Adjacency Flow Editor */}
-        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col flex-1 min-h-[180px]">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block mb-3">Adjacency Flow</label>
-          
-          <div className="flex-1 overflow-y-auto max-h-[140px] space-y-2 mb-3 pr-1 custom-scrollbar">
+        <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex flex-col flex-1 min-h-[140px]">
+          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-2">Adjacency Flow</label>
+
+          <div className="flex-1 overflow-y-auto max-h-[100px] space-y-1.5 mb-2 pr-1 custom-scrollbar">
             {parsedAdjacencies.map((adj, index) => (
               <div key={index} className="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-700 font-semibold shadow-sm">
                 <span>Rule # {(index + 1).toString().padStart(2, '0')}: {adj}</span>
@@ -1257,19 +1257,19 @@ const ChatV2SummaryEditor = ({
             ))}
           </div>
 
-          <div className="flex gap-2 border-t border-slate-200 pt-3">
-            <input 
-              className="flex-1 text-xs text-slate-700 bg-white border border-slate-200 rounded-lg p-2 outline-none"
+          <div className="flex gap-2 border-t border-slate-200 pt-2">
+            <input
+              className="flex-1 text-xs text-slate-700 bg-white border border-slate-200 rounded-lg p-1 outline-none"
               placeholder="e.g. Kitchen connected to Dining"
               value={newAdjacencyText}
               onChange={e => setNewAdjacencyText(e.target.value)}
             />
-            <button 
+            <button
               type="button"
               onClick={handleAddAdjacency}
-              className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors flex items-center justify-center"
+              className="p-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center justify-center"
             >
-              <Plus size={16} />
+              <Plus size={13} />
             </button>
           </div>
         </div>
@@ -4037,7 +4037,7 @@ STRICT GENERATION RULES:
               <button
                 type="button"
                 onClick={() => setAutoPlanEnlargedKey(null)}
-                className="h-8 w-8 shrink-0 rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:text-indigo-700 flex items-center justify-center"
+                className="h-8 w-8 shrink-0 rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:text-blue-700 flex items-center justify-center"
                 title="Close enlarged view"
               >
                 <X size={15} />
@@ -4101,7 +4101,7 @@ STRICT GENERATION RULES:
     return (
       <div
         key={key}
-        className={`flex min-w-0 flex-1 flex-col rounded-2xl border bg-white shadow-sm overflow-hidden ${selected ? 'border-indigo-400 ring-2 ring-indigo-100' : 'border-slate-200'}`}
+        className={`flex min-w-0 flex-1 flex-col rounded-2xl border bg-white shadow-sm overflow-hidden ${selected ? 'border-blue-400 ring-2 ring-blue-100' : 'border-slate-200'}`}
       >
         <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-white/95 p-3">
           <button
@@ -4138,7 +4138,7 @@ STRICT GENERATION RULES:
                 value={isText4hMode ? text4hMasterThinkingLevel : text4gMasterThinkingLevel}
                 onChange={event => isText4hMode ? setText4hMasterThinkingLevel(event.target.value as Text4hMasterThinkingLevel) : setText4gMasterThinkingLevel(event.target.value as Text4gMasterThinkingLevel)}
                 disabled={result.status === 'pending'}
-                className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-[11px] font-bold capitalize text-slate-700 outline-none hover:border-indigo-300 focus:border-indigo-400 disabled:cursor-not-allowed disabled:opacity-40"
+                className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-[11px] font-bold capitalize text-slate-700 outline-none hover:border-blue-300 focus:border-blue-400 disabled:cursor-not-allowed disabled:opacity-40"
                 title="Gemini 3.5 Flash-Lite thinking level"
               >
                 <option value="minimal">Minimal</option>
@@ -4152,10 +4152,10 @@ STRICT GENERATION RULES:
                 type="button"
                 onClick={handleGenerateMasterFloorplanData}
                 disabled={result.status === 'pending'}
-                className="flex h-8 items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 text-xs font-bold text-indigo-700 hover:bg-indigo-100 hover:border-indigo-300 disabled:opacity-40 transition-all shadow-xs"
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-2.5 text-xs font-bold text-blue-700 hover:bg-blue-100 hover:border-blue-300 disabled:opacity-40 transition-all shadow-xs"
                 title={result.status === 'done' ? 'Regenerate Gemini Master' : 'Generate Gemini Master'}
               >
-                <Sparkles size={13} className="text-indigo-600" />
+                <Sparkles size={13} className="text-blue-600" />
                 <span>{result.status === 'done' ? 'Regenerate' : result.status === 'error' ? 'Retry' : 'Generate'}</span>
               </button>
             )}
@@ -4196,7 +4196,7 @@ STRICT GENERATION RULES:
               type="button"
               onClick={() => exportText4gComparisonJson(result.data, key)}
               disabled={result.status !== 'done' || !result.data}
-              className="h-8 w-8 shrink-0 rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-40 flex items-center justify-center"
+              className="h-8 w-8 shrink-0 rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-40 flex items-center justify-center"
               title={`Export ${result.label}`}
             >
               <Download size={15} />
@@ -4247,7 +4247,7 @@ STRICT GENERATION RULES:
                 </div>
               ) : result.status === 'idle' ? (
                 <div className="flex flex-col items-center gap-3 max-w-xs text-slate-700">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 border border-indigo-100 shadow-xs text-indigo-600">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 border border-blue-100 shadow-xs text-blue-600">
                     <Sparkles size={24} />
                   </div>
                   <div className="text-sm font-bold text-slate-800">Gemini Master JSON</div>
@@ -4257,7 +4257,7 @@ STRICT GENERATION RULES:
                   {!isAutoScanFlashMode && !isAutoPlanGenerationMode && <button
                     type="button"
                     onClick={handleGenerateMasterFloorplanData}
-                    className="mt-1 flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-indigo-700 active:scale-95 transition-all"
+                    className="mt-1 flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 active:scale-95 transition-all"
                   >
                     <Sparkles size={15} />
                     <span>Generate Gemini Master JSON</span>
@@ -4325,7 +4325,7 @@ STRICT GENERATION RULES:
         {/* Full-screen tools use the app bar as their sole Back control. */}
         {mode !== 'ai-rendering' && <div className="px-6 py-4 border-b border-slate-100 flex items-center bg-white shrink-0">
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2 text-indigo-600">
+            <div className="flex items-center gap-2 text-blue-600">
               <Sparkles size={20} />
               <h2 className="font-bold text-lg text-slate-900">
                 {externalImport?.isBimImport
@@ -4434,10 +4434,10 @@ STRICT GENERATION RULES:
                   {chatHistory.map((msg, i) => (
                     <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                       <div className={`flex gap-2 max-w-[90%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-indigo-100 text-indigo-600' : 'bg-green-100 text-green-600'}`}>
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'}`}>
                           {msg.role === 'user' ? <User size={12} /> : <Bot size={12} />}
                         </div>
-                        <div className={`p-2.5 rounded-xl text-xs leading-relaxed ${msg.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-700 rounded-tl-none shadow-sm'}`}>
+                        <div className={`p-2.5 rounded-xl text-xs leading-relaxed ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-700 rounded-tl-none shadow-sm'}`}>
                           {msg.text}
                         </div>
                       </div>
@@ -4450,17 +4450,17 @@ STRICT GENERATION RULES:
                 </div>
                 <div className="p-3 bg-white border-t border-slate-200 shrink-0">
                   <div className="flex gap-2">
-                    <input type="text" value={userInput} onChange={(e) => setUserInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()} placeholder="Type something..." className="flex-1 px-3 py-2 bg-slate-100 text-slate-900 placeholder:text-slate-400 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-xs" />
-                    <button onClick={handleSendMessage} disabled={!userInput.trim() || isTyping} className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all disabled:opacity-50"><Send size={14} /></button>
+                    <input type="text" value={userInput} onChange={(e) => setUserInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()} placeholder="Type something..." className="flex-1 px-3 py-2 bg-slate-100 text-slate-900 placeholder:text-slate-400 border-none rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs" />
+                    <button onClick={handleSendMessage} disabled={!userInput.trim() || isTyping} className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all disabled:opacity-50"><Send size={14} /></button>
                   </div>
                 </div>
               </div>
 
               {/* Right Panel: Design Brief Confirmation Editor (2/3 width) */}
-              <div className="w-2/3 flex flex-col h-full bg-white p-6 overflow-hidden">
-                <div className="flex items-center gap-3 text-indigo-700 border-b border-indigo-50 pb-4 shrink-0"><Edit3 size={24} /><h3 className="text-xl font-bold">Design Brief Confirmation</h3></div>
-                
-                <div className="flex-1 min-h-0 overflow-y-auto py-4">
+              <div className="w-2/3 flex flex-col h-full bg-white p-3 overflow-hidden">
+                <div className="flex items-center gap-1.5 text-blue-700 border-b border-blue-50 pb-2 shrink-0"><Edit3 size={16} /><h3 className="text-sm font-bold">Design Brief Confirmation</h3></div>
+
+                <div className="flex-1 min-h-0 overflow-y-auto py-2">
                   <ChatV2SummaryEditor
                     value={designSummary}
                     onChange={setDesignSummary}
@@ -4473,7 +4473,7 @@ STRICT GENERATION RULES:
                   />
                 </div>
 
-                <div className="border-t border-slate-100 pt-4 flex items-center justify-between gap-3 shrink-0">
+                <div className="border-t border-slate-100 pt-2 flex items-center justify-between gap-2 shrink-0">
                   {isText4ReplicaMode && error ? (
                     <p className="text-xs font-semibold text-red-700 max-w-md">Generation stopped: {error}</p>
                   ) : isText4ReplicaMode && infoMessage ? (
@@ -4481,50 +4481,50 @@ STRICT GENERATION RULES:
                   ) : isText4ReplicaMode && !activeText4Validation.valid ? (
                     <p className="text-xs font-semibold text-amber-700 max-w-md">{activeText4Validation.errors.join(' ')}</p>
                   ) : <span />}
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5">
                     {isText4IsolatedMode && (
                       <button
                         onClick={handleCopyPrompt}
                         type="button"
-                        className="px-5 py-3 bg-white text-indigo-700 font-bold rounded-xl border border-indigo-200 hover:bg-indigo-50 transition-all flex items-center justify-center gap-2"
+                        className="px-3 py-1.5 bg-white text-blue-700 font-bold rounded-xl border border-blue-200 hover:bg-blue-50 transition-all flex items-center justify-center gap-1.5 text-xs"
                         title="Copy the exact prompt string built for floorplan image generation"
                       >
-                        {copiedPrompt ? <Check size={17} className="text-emerald-600" /> : <Copy size={17} />}
+                        {copiedPrompt ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
                         {copiedPrompt ? 'COPIED PROMPT!' : 'COPY PROMPT'}
                       </button>
                     )}
                     {isText4IsolatedMode && !isText4hMode && (
                       <button
                         onClick={handleSkipText4dImageGeneration}
-                        className="px-5 py-3 bg-white text-amber-700 font-bold rounded-xl border border-amber-300 hover:bg-amber-50 transition-all flex items-center justify-center gap-2"
+                        className="px-3 py-1.5 bg-white text-amber-700 font-bold rounded-xl border border-amber-300 hover:bg-amber-50 transition-all flex items-center justify-center gap-1.5 text-xs"
                         title={`Skip Gemini image generation and test Text 4.0 ${isText4jMode ? 'J' : isText4hMode ? 'H' : isText4gMode ? 'G' : isText4fMode ? 'F' : isText4eMode ? 'E' : 'D'} with an existing floorplan image`}
                       >
-                        <Upload size={17} /> SKIP TO IMAGE TEST
+                        <Upload size={13} /> SKIP TO IMAGE TEST
                       </button>
                     )}
                     <button
                       onClick={handleGenerateFromChat}
                       disabled={countdown > 0 || (isText4ReplicaMode && !activeText4Validation.valid)}
-                      className="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-250 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-5 py-1.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-250 transition-all flex items-center justify-center gap-1.5 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {countdown > 0 ? `Please wait ${minutes}:${seconds.toString().padStart(2, '0')}` : <><Wand2 size={18} /> Generate Geometry</>}
+                      {countdown > 0 ? `Please wait ${minutes}:${seconds.toString().padStart(2, '0')}` : <><Wand2 size={14} /> Generate Geometry</>}
                     </button>
                   </div>
                 </div>
               </div>
             </div>
           )}
-          
+
           {step === 'input' && (mode === 'chat' || mode === 'fusion' || mode === 'text2plan' || mode === 'smart-text2plan') && (
             <>
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 {chatHistory.map((msg, i) => (
                   <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`flex gap-3 max-w-[80%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-indigo-100 text-indigo-650' : 'bg-green-100 text-green-600'}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-blue-100 text-blue-650' : 'bg-green-100 text-green-600'}`}>
                         {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
                       </div>
-                      <div className={`p-3.5 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-700 rounded-tl-none shadow-sm'}`}>
+                      <div className={`p-3.5 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-700 rounded-tl-none shadow-sm'}`}>
                         {msg.text}
                       </div>
                     </div>
@@ -4537,9 +4537,9 @@ STRICT GENERATION RULES:
               </div>
               <div className="p-4 bg-white border-t border-slate-200 shrink-0">
                 <div className="flex gap-2">
-                  <input type="text" value={userInput} onChange={(e) => setUserInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()} placeholder="Type your answer or requirement..." className="flex-1 px-4 py-3 bg-slate-100 text-slate-900 placeholder:text-slate-400 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                  <input type="text" value={userInput} onChange={(e) => setUserInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()} placeholder="Type your answer or requirement..." className="flex-1 px-4 py-3 bg-slate-100 text-slate-900 placeholder:text-slate-400 border-none rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"
    autoFocus />
-                  <button onClick={handleSendMessage} disabled={!userInput.trim() || isTyping} className="p-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all disabled:opacity-50"><Send size={18} /></button>
+                  <button onClick={handleSendMessage} disabled={!userInput.trim() || isTyping} className="p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all disabled:opacity-50"><Send size={18} /></button>
                 </div>
               </div>
             </>
@@ -4552,9 +4552,9 @@ STRICT GENERATION RULES:
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
-                    className={`w-full max-w-lg h-64 border-2 border-dashed rounded-2xl transition-all cursor-pointer flex flex-col items-center justify-center group ${isDragging ? 'border-indigo-500 bg-indigo-50' : 'border-slate-300 bg-slate-50 hover:bg-white hover:border-indigo-400'}`}
+                    className={`w-full max-w-lg h-64 border-2 border-dashed rounded-2xl transition-all cursor-pointer flex flex-col items-center justify-center group ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-slate-300 bg-slate-50 hover:bg-white hover:border-blue-400'}`}
                  >
-                    <div className="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><Upload className="text-indigo-600" size={32} /></div>
+                    <div className="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"><Upload className="text-blue-600" size={32} /></div>
                     <span className="text-slate-600 font-bold text-lg">
                       {isDragging ? 'Drop Image Here' : 'Upload or Drag & Drop Image'}
                     </span>
@@ -4571,13 +4571,13 @@ STRICT GENERATION RULES:
                     {/* Controls Removed from here - moved to Preview Step for Tracer */}
 
                     {mode === 'image' && (
-                        <button onClick={handleGenerateFromImage} disabled={countdown > 0} className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button onClick={handleGenerateFromImage} disabled={countdown > 0} className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                           {countdown > 0 ? `Please wait ${minutes}:${seconds.toString().padStart(2, '0')}` : <><Wand2 size={18} /> Trace Geometry (Fast)</>}
                         </button>
                     )}
                     
                     {mode === 'redraw-v2' && (
-                        <button onClick={handleGenerateRedrawV2} disabled={countdown > 0} className="w-full py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 shadow-lg shadow-purple-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button onClick={handleGenerateRedrawV2} disabled={countdown > 0} className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                           {countdown > 0 ? `Please wait ${minutes}:${seconds.toString().padStart(2, '0')}` : <><Sparkles size={18} /> Smart Reconstruct (Logic)</>}
                         </button>
                     )}
@@ -4589,7 +4589,7 @@ STRICT GENERATION RULES:
                     )}
 
                     {mode === 'tracer' && (
-                        <button onClick={() => handleGenerateTracer(false)} disabled={countdown > 0} className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button onClick={() => handleGenerateTracer(false)} disabled={countdown > 0} className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                           {countdown > 0 ? `Please wait ${minutes}:${seconds.toString().padStart(2, '0')}` : <><Zap size={18} /> Trace Floorplan (Realtime)</>}
                         </button>
                     )}
@@ -4604,8 +4604,8 @@ STRICT GENERATION RULES:
                   <div className="flex-1 flex flex-col h-full">
                     <h3 className="text-sm font-bold text-slate-700 mb-2">1. Reference Image</h3>
                     {!selectedImage ? (
-                      <label className="flex-1 border-2 border-dashed border-slate-300 rounded-2xl bg-slate-50 hover:bg-white hover:border-indigo-400 transition-all cursor-pointer flex flex-col items-center justify-center group">
-                          <Upload className="text-indigo-400 mb-2 group-hover:scale-110 transition-transform" size={24} />
+                      <label className="flex-1 border-2 border-dashed border-slate-300 rounded-2xl bg-slate-50 hover:bg-white hover:border-blue-400 transition-all cursor-pointer flex flex-col items-center justify-center group">
+                          <Upload className="text-blue-400 mb-2 group-hover:scale-110 transition-transform" size={24} />
                           <span className="text-slate-500 font-medium text-sm text-center px-4">Upload style reference</span>
                           <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
                       </label>
@@ -4618,17 +4618,17 @@ STRICT GENERATION RULES:
                   </div>
                   <div className="flex-1 flex flex-col h-full">
                     <h3 className="text-sm font-bold text-slate-700 mb-2">2. Design Brief</h3>
-                    <textarea value={designSummary} onChange={(e) => setDesignSummary(e.target.value)} placeholder="E.g., Adapt this style for a 2-bedroom apartment..." className="flex-1 p-4 bg-white border border-slate-200 rounded-2xl text-slate-800 text-sm focus:ring-2 focus:ring-indigo-500 outline-none resize-none" />
+                    <textarea value={designSummary} onChange={(e) => setDesignSummary(e.target.value)} placeholder="E.g., Adapt this style for a 2-bedroom apartment..." className="flex-1 p-4 bg-white border border-slate-200 rounded-2xl text-slate-800 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none" />
                   </div>
                </div>
-               <button onClick={() => setStep('summary')} disabled={!selectedImage || !designSummary.trim()} className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">Review & Generate <ArrowRight size={18} /></button>
+               <button onClick={() => setStep('summary')} disabled={!selectedImage || !designSummary.trim()} className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">Review & Generate <ArrowRight size={18} /></button>
             </div>
           )}
 
           {step === 'summary' && (
             <div className="flex-1 p-8 flex flex-col items-center justify-center animate-in fade-in slide-in-from-bottom-4 h-full overflow-hidden">
               <div className={`w-full ${ (mode as any) === 'chat-v2' || (mode as any) === 'chat-v3' || (mode as any) === 'chat-v4' || (mode as any) === 'chat-v4a' || (mode as any) === 'chat-v4b' || (mode as any) === 'chat-v4c' || (mode as any) === 'chat-v4d' || (mode as any) === 'chat-v4e' || (mode as any) === 'chat-v4f' || (mode as any) === 'chat-v4g' || (mode as any) === 'chat-v4h' || (mode as any) === 'chat-v4j' ? 'max-w-5xl h-full flex flex-col' : 'max-w-xl' } bg-white rounded-2xl shadow-xl border border-slate-200 p-6 space-y-6 flex flex-col`}>
-                <div className="flex items-center gap-3 text-indigo-700 border-b border-indigo-50 pb-4 shrink-0"><Edit3 size={24} /><h3 className="text-xl font-bold">Design Brief Confirmation</h3></div>
+                <div className="flex items-center gap-3 text-blue-700 border-b border-blue-50 pb-4 shrink-0"><Edit3 size={24} /><h3 className="text-xl font-bold">Design Brief Confirmation</h3></div>
                 <div className="space-y-2 flex-1 flex flex-col min-h-0 overflow-hidden">
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0">Final Requirements</label>
                   {(mode as any) === 'chat-v2' || (mode as any) === 'chat-v3' || (mode as any) === 'chat-v4' || (mode as any) === 'chat-v4a' || (mode as any) === 'chat-v4b' || (mode as any) === 'chat-v4c' || (mode as any) === 'chat-v4d' || (mode as any) === 'chat-v4e' || (mode as any) === 'chat-v4f' || (mode as any) === 'chat-v4g' || (mode as any) === 'chat-v4h' || (mode as any) === 'chat-v4j' ? (
@@ -4643,7 +4643,7 @@ STRICT GENERATION RULES:
                       text4IsolatedVariant={isText4jMode ? 'j' : isText4hMode ? 'h' : isText4gMode ? 'g' : isText4fMode ? 'f' : isText4eMode ? 'e' : 'd'}
                     />
                   ) : (
-                    <textarea value={designSummary} onChange={(e) => setDesignSummary(e.target.value)} className="w-full h-32 p-4 bg-indigo-50/50 border border-indigo-100 rounded-xl text-slate-800 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none resize-none leading-relaxed" />
+                    <textarea value={designSummary} onChange={(e) => setDesignSummary(e.target.value)} className="w-full h-32 p-4 bg-blue-50/50 border border-blue-100 rounded-xl text-slate-800 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none resize-none leading-relaxed" />
                   )}
                 </div>
                 <div className="flex justify-end gap-3 pt-2 shrink-0">
@@ -4654,7 +4654,7 @@ STRICT GENERATION RULES:
                     <button
                       onClick={handleCopyPrompt}
                       type="button"
-                      className="px-5 py-3 bg-white text-indigo-700 font-bold rounded-xl border border-indigo-200 hover:bg-indigo-50 transition-all flex items-center justify-center gap-2"
+                      className="px-5 py-3 bg-white text-blue-700 font-bold rounded-xl border border-blue-200 hover:bg-blue-50 transition-all flex items-center justify-center gap-2"
                       title="Copy the exact prompt string built for floorplan image generation"
                     >
                       {copiedPrompt ? <Check size={17} className="text-emerald-600" /> : <Copy size={17} />}
@@ -4673,7 +4673,7 @@ STRICT GENERATION RULES:
                   <button 
                     onClick={mode === 'smart-text2plan' ? () => generate(() => generateFloorplanSmartText2Plan(designSummary, currentBoundary)) : (mode === 'text2plan' ? () => generate(() => generateFloorplanText2Plan(designSummary, currentBoundary)) : (mode === 'chat' || (mode as any) === 'chat-v2' || (mode as any) === 'chat-v3' || (mode as any) === 'chat-v4' || (mode as any) === 'chat-v4a' || (mode as any) === 'chat-v4b' || (mode as any) === 'chat-v4c' || (mode as any) === 'chat-v4d' || (mode as any) === 'chat-v4e' || (mode as any) === 'chat-v4f' || (mode as any) === 'chat-v4g' || (mode as any) === 'chat-v4h' || (mode as any) === 'chat-v4j' ? handleGenerateFromChat : (mode === 'image' ? handleGenerateFromImage : (mode === 'redraw-v2' ? handleGenerateRedrawV2 : (mode === 'digitizer' ? handleGenerateDigitizer : (mode === 'fusion' ? handleGenerateFromFusion : (mode === 'tracer' ? () => handleGenerateTracer(false) : handleGenerateFromReference)))))))}
                     disabled={countdown > 0 || (isText4ReplicaMode && !activeText4Validation.valid)}
-                    className="flex-[2] py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-[2] py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {countdown > 0 ? `Please wait ${minutes}:${seconds.toString().padStart(2, '0')}` : <><Wand2 size={18} /> Generate Geometry</>}
                   </button>
@@ -4710,10 +4710,10 @@ STRICT GENERATION RULES:
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
-                        className={`w-full h-72 border-2 border-dashed rounded-2xl transition-all cursor-pointer flex flex-col items-center justify-center group ${isDragging ? 'border-indigo-500 bg-indigo-50' : 'border-slate-300 bg-slate-50 hover:bg-white hover:border-indigo-400'}`}
+                        className={`w-full h-72 border-2 border-dashed rounded-2xl transition-all cursor-pointer flex flex-col items-center justify-center group ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-slate-300 bg-slate-50 hover:bg-white hover:border-blue-400'}`}
                       >
                         <div className="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                          <Upload className="text-indigo-600" size={32} />
+                          <Upload className="text-blue-600" size={32} />
                         </div>
                         <span className="text-slate-700 font-bold">{isDragging ? 'Drop Floorplan Here' : 'Upload or Drag & Drop Floorplan'}</span>
                         <input type="file" className="hidden" accept="image/png,image/jpeg,image/webp" onChange={handleImageUpload} />
@@ -4723,7 +4723,7 @@ STRICT GENERATION RULES:
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
-                        className={`relative h-72 rounded-2xl overflow-hidden border-2 bg-slate-50 transition-colors ${isDragging ? 'border-indigo-500' : 'border-slate-200'}`}
+                        className={`relative h-72 rounded-2xl overflow-hidden border-2 bg-slate-50 transition-colors ${isDragging ? 'border-blue-500' : 'border-slate-200'}`}
                       >
                         <img src={selectedImage} alt="Uploaded floorplan test" className="w-full h-full object-contain bg-white" />
                         <button
@@ -4753,7 +4753,7 @@ STRICT GENERATION RULES:
                             key={value}
                             type="button"
                             onClick={() => setActiveText4IsolatedUploadScale(current => ({ ...current, unitSystem: value }))}
-                            className={`px-3 py-1.5 rounded-md text-xs font-bold capitalize transition-colors ${activeText4IsolatedUploadScale.unitSystem === value ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-800'}`}
+                            className={`px-3 py-1.5 rounded-md text-xs font-bold capitalize transition-colors ${activeText4IsolatedUploadScale.unitSystem === value ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-800'}`}
                           >
                             {value}
                           </button>
@@ -4774,7 +4774,7 @@ STRICT GENERATION RULES:
                               spellCheck={false}
                               value={activeText4IsolatedUploadScale.width}
                               onChange={event => setActiveText4IsolatedUploadScale(current => ({ ...current, width: event.target.value }))}
-                              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 pr-14 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500"
+                              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 pr-14 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-blue-500"
                               placeholder={activeText4IsolatedUploadScale.unitSystem === 'imperial' ? `e.g. 25'-6"` : 'e.g. 7.62 m'}
                             />
                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">{activeText4IsolatedUploadScale.unitSystem === 'imperial' ? 'ft / in' : 'metric'}</span>
@@ -4790,7 +4790,7 @@ STRICT GENERATION RULES:
                               spellCheck={false}
                               value={activeText4IsolatedUploadScale.depth}
                               onChange={event => setActiveText4IsolatedUploadScale(current => ({ ...current, depth: event.target.value }))}
-                              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 pr-14 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500"
+                              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 pr-14 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-blue-500"
                               placeholder={activeText4IsolatedUploadScale.unitSystem === 'imperial' ? `e.g. 40'-0"` : 'e.g. 12.19 m'}
                             />
                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">{activeText4IsolatedUploadScale.unitSystem === 'imperial' ? 'ft / in' : 'metric'}</span>
@@ -4820,7 +4820,7 @@ STRICT GENERATION RULES:
                           spellCheck={false}
                           value={activeText4IsolatedUploadScale.area}
                           onChange={event => setActiveText4IsolatedUploadScale(current => ({ ...current, area: event.target.value }))}
-                          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 pr-16 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500"
+                          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 pr-16 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder={activeText4IsolatedUploadScale.unitSystem === 'imperial' ? 'e.g. 1,000 sq ft' : 'e.g. 92.9 m\u00b2'}
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">{activeText4IsolatedUploadScale.unitSystem === 'imperial' ? 'sq ft' : 'm\u00b2'}</span>
@@ -4854,7 +4854,7 @@ STRICT GENERATION RULES:
                   <button
                     onClick={handleConvertUploadedText4dImage}
                     disabled={!selectedImage || !activeText4IsolatedUploadValidation.valid}
-                    className="px-7 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-7 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Zap size={18} /> {isAutoScanFlashMode ? 'Digitize Floorplan' : 'Convert Image to Floorplan JSON'}
                   </button>
@@ -4874,9 +4874,9 @@ STRICT GENERATION RULES:
                </p>
                
                <div className="w-full max-w-lg bg-white border border-slate-200 rounded-xl p-4 shadow-sm mb-6 flex items-center gap-3">
-                  <Globe className="text-indigo-500 shrink-0" size={20} />
+                  <Globe className="text-blue-500 shrink-0" size={20} />
                   <div className="flex-1 overflow-hidden">
-                     <a href={fallbackUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-indigo-600 hover:underline truncate block font-medium">
+                     <a href={fallbackUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline truncate block font-medium">
                        {fallbackUrl}
                      </a>
                   </div>
@@ -4885,17 +4885,17 @@ STRICT GENERATION RULES:
                   </button>
                </div>
 
-               <div className="bg-slate-50 border-2 border-dashed border-indigo-300 rounded-2xl p-8 w-full max-w-lg flex flex-col items-center gap-4">
-                  <div className="flex items-center gap-2 text-indigo-700 font-bold">
-                     <span className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">1</span>
+               <div className="bg-slate-50 border-2 border-dashed border-blue-300 rounded-2xl p-8 w-full max-w-lg flex flex-col items-center gap-4">
+                  <div className="flex items-center gap-2 text-blue-700 font-bold">
+                     <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">1</span>
                      Click the link above to open image
                   </div>
-                  <div className="flex items-center gap-2 text-indigo-700 font-bold">
-                     <span className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">2</span>
+                  <div className="flex items-center gap-2 text-blue-700 font-bold">
+                     <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">2</span>
                      Right-click image & "Copy Image"
                   </div>
-                  <div className="flex items-center gap-2 text-indigo-700 font-bold">
-                     <span className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">3</span>
+                  <div className="flex items-center gap-2 text-blue-700 font-bold">
+                     <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">3</span>
                      Press <span className="bg-white border border-slate-300 px-1.5 py-0.5 rounded text-xs font-mono text-slate-600 mx-1">Ctrl+V</span> here
                   </div>
                   
@@ -4921,11 +4921,11 @@ STRICT GENERATION RULES:
                 {!isAutoScanFlashMode && !isAutoPlanGenerationMode && (generatedData?.sourceImageBase64 || ((isText4gMode || isText4hMode || isText4jMode) && selectedImage)) && (
                   <div className="w-1/3 min-h-0 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col animate-in slide-in-from-left-4 duration-300">
                     <div className="p-3 bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between gap-2 shrink-0">
-                       <span className="flex items-center gap-2"><ImageIcon size={14} className="text-indigo-600" /> {isText4IsolatedMode && activeText4IsolatedConversionSource === 'uploaded-test' ? 'Uploaded Test Image' : 'AI Architect Image'}</span>
+                       <span className="flex items-center gap-2"><ImageIcon size={14} className="text-blue-600" /> {isText4IsolatedMode && activeText4IsolatedConversionSource === 'uploaded-test' ? 'Uploaded Test Image' : 'AI Architect Image'}</span>
                        {isText4IsolatedMode && activeText4IsolatedConversionSource === 'uploaded-test' && (
                          <button
                            onClick={() => setStep('text4d-image-test')}
-                           className="text-[10px] font-bold normal-case tracking-normal text-indigo-600 hover:text-indigo-800"
+                           className="text-[10px] font-bold normal-case tracking-normal text-blue-600 hover:text-blue-800"
                          >
                            Replace
                          </button>
@@ -4953,7 +4953,7 @@ STRICT GENERATION RULES:
                   )}
                   {externalImport?.isBimAsset && externalImport?.bimMetadata?.previewUrl && (
                     <div className="absolute top-4 left-4 bg-white/90 backdrop-blur border border-slate-200 rounded-2xl p-3 shadow-lg z-10 flex flex-col gap-2 animate-in slide-in-from-left-4 duration-300">
-                      <span className="text-[9px] font-extrabold text-indigo-650 uppercase tracking-widest block">Family Visual Preview</span>
+                      <span className="text-[9px] font-extrabold text-blue-650 uppercase tracking-widest block">Family Visual Preview</span>
                       <img 
                         src={externalImport.bimMetadata.previewUrl} 
                         alt="BIM Family Preview" 
@@ -4981,7 +4981,7 @@ STRICT GENERATION RULES:
                         {!isAutoScanFlashMode && !isAutoPlanGenerationMode && !isText4jMode && <button
                           type="button"
                           onClick={downloadAllText4gTestData}
-                          className="shrink-0 rounded-xl border border-indigo-200 bg-white px-3 py-2 text-xs font-black text-indigo-700 shadow-sm hover:bg-indigo-50 flex items-center gap-2"
+                          className="shrink-0 rounded-xl border border-blue-200 bg-white px-3 py-2 text-xs font-black text-blue-700 shadow-sm hover:bg-blue-50 flex items-center gap-2"
                         >
                           <Download size={15} /> Download All Test Data
                         </button>}
@@ -5103,14 +5103,14 @@ STRICT GENERATION RULES:
             </div>
               
               {mode === 'tracer' && (
-                  <div className="mt-4 px-4 py-3 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center gap-4">
-                      <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider min-w-max">Tracer Controls</span>
+                  <div className="mt-4 px-4 py-3 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-4">
+                      <span className="text-xs font-bold text-blue-700 uppercase tracking-wider min-w-max">Tracer Controls</span>
                       <div className="flex-1 flex items-center gap-2">
                           <span className="text-xs text-slate-500">Overlap ({tracerOverlap}%)</span>
                           <input 
                             type="range" min="0" max="100" value={tracerOverlap} 
                             onChange={(e) => setTracerOverlap(parseInt(e.target.value))} 
-                            className="flex-1 h-1 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
+                            className="flex-1 h-1 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-blue-600" 
                           />
                       </div>
                       <div className="flex-1 flex items-center gap-2">
@@ -5118,7 +5118,7 @@ STRICT GENERATION RULES:
                           <input 
                             type="range" min="0" max="100" value={tracerConfidence} 
                             onChange={(e) => setTracerConfidence(parseInt(e.target.value))} 
-                            className="flex-1 h-1 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
+                            className="flex-1 h-1 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-blue-600" 
                           />
                       </div>
                   </div>
@@ -5133,7 +5133,7 @@ STRICT GENERATION RULES:
                    <button 
                       onClick={handleImportInterior}
                       disabled={isImportingInterior || isText4dDigitizationPending}
-                      className="px-5 py-2.5 bg-indigo-100 text-indigo-700 font-bold rounded-xl hover:bg-indigo-200 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                      className="px-5 py-2.5 bg-blue-100 text-blue-700 font-bold rounded-xl hover:bg-blue-200 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                    >
                       {isImportingInterior || isText4dDigitizationPending ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />} Import Interior
                    </button>
@@ -5196,7 +5196,7 @@ STRICT GENERATION RULES:
             <div className="flex-1 flex flex-col p-8 animate-in slide-in-from-right-4 duration-300">
               <div className="max-w-3xl mx-auto w-full">
                 <div className="mb-6">
-                  <p className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em]">Step 2</p>
+                  <p className="text-xs font-black text-blue-600 uppercase tracking-[0.2em]">Step 2</p>
                   <h3 className="text-2xl font-black text-slate-900 mt-1">Choose Import Method</h3>
                   <p className="text-sm text-slate-500 mt-2">
                     The DXF is scaled in Copilot. Choose whether to place it raw or run one of the existing converters before placement.
@@ -5232,7 +5232,7 @@ STRICT GENERATION RULES:
                     <button
                       key={option.id}
                       onClick={() => setImportConversionMode(option.id)}
-                      className={`text-left rounded-2xl border p-4 transition-all ${importConversionMode === option.id ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-100' : 'border-slate-200 bg-white hover:bg-slate-50'}`}
+                      className={`text-left rounded-2xl border p-4 transition-all ${importConversionMode === option.id ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-100' : 'border-slate-200 bg-white hover:bg-slate-50'}`}
                     >
                       <div className="text-sm font-black text-slate-900">{option.label}</div>
                       <div className="text-xs text-slate-500 leading-relaxed mt-1">{option.desc}</div>
