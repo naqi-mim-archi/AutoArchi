@@ -5913,6 +5913,22 @@ var getVertexClient8 = () => {
   }
   return cachedVertexClientPromise8;
 };
+var resolveImageTransport = async () => {
+  const clientPromise = getVertexClient8();
+  if (clientPromise) {
+    try {
+      const token = (await (await clientPromise).getAccessToken())?.token;
+      if (token) return { kind: "vertex", token };
+    } catch (error) {
+      console.warn(`[AI-Render] Vertex render credentials failed to authenticate: ${error?.message || error}`);
+    }
+  }
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (apiKey) return { kind: "api-key", apiKey };
+  return null;
+};
+var geminiImageEndpoint = (transport, model) => transport.kind === "vertex" ? `https://aiplatform.googleapis.com/v1/projects/rendair-competitor/locations/global/publishers/google/models/${model}:generateContent` : `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(transport.apiKey)}`;
+var geminiImageHeaders = (transport) => transport.kind === "vertex" ? { Authorization: `Bearer ${transport.token}`, "Content-Type": "application/json" } : { "Content-Type": "application/json" };
 function normalizeError(err) {
   const msg = err?.message || String(err);
   if (msg.includes("MIME") || msg.includes("format")) return "UNSUPPORTED_MIME_TYPE";
@@ -5934,24 +5950,14 @@ async function scheduleBackgroundJob(jobId) {
   } catch {
   }
 }
-var MOCK_ARCH_IMAGES = [
-  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
-  // Contemporary villa
-  "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
-  // Modern kitchen/dining
-  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
-  // Penthouse living room
-  "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=80"
-  // Luxury bathroom
-];
 var MOCK_ARCH_VIDEOS = [
   "https://assets.mixkit.co/videos/preview/mixkit-modern-apartment-interior-design-with-creative-lighting-43093-large.mp4",
   "https://assets.mixkit.co/videos/preview/mixkit-bright-kitchen-with-wooden-details-in-modern-house-41577-large.mp4",
   "https://assets.mixkit.co/videos/preview/mixkit-luxury-home-exterior-with-swimming-pool-and-green-lawn-41618-large.mp4",
   "https://assets.mixkit.co/videos/preview/mixkit-living-room-with-modern-furniture-and-large-windows-41574-large.mp4"
 ];
-async function generateVariant(job, workflow, index, isMock) {
-  if (isMock || workflow.provider === "local_adjustment" || workflow.provider === "gemini_analysis") {
+async function generateVariant(job, workflow, index, transport) {
+  if (workflow.provider === "local_adjustment" || workflow.provider === "gemini_analysis") {
     const delay = job.model.includes("pro") ? 2500 : 1200;
     await new Promise((r) => setTimeout(r, delay));
     return {
@@ -5960,14 +5966,14 @@ async function generateVariant(job, workflow, index, isMock) {
       usedFallbackMock: true
     };
   }
+  if (!transport) {
+    throw new Error("No image generation credentials are configured. Set GOOGLE_VERTEX_RENDER_SA_KEY_JSON, or GEMINI_API_KEY as a fallback.");
+  }
   try {
     let targetModel = job.model;
     if (!targetModel.startsWith("gemini-")) {
       targetModel = "gemini-3.1-flash-image";
     }
-    const client = await getVertexClient8();
-    const tokenResponse = await client?.getAccessToken();
-    const token = tokenResponse?.token;
     const inputImagesList = [];
     const parseImageEntry = (entry, defaultName = "Reference") => {
       if (!entry) return null;
@@ -6051,12 +6057,10 @@ ${canvasSpec}${inpaintingSpec}`;
         targetModel2 = "gemini-3.1-flash-image";
       }
       const multimodalModels = Array.from(/* @__PURE__ */ new Set([targetModel2, "gemini-3.1-flash-image", "gemini-3-pro-image"]));
-      const client2 = await getVertexClient8();
-      const token2 = await client2?.getAccessToken().then((r) => r.token);
       for (const m of multimodalModels) {
         if (base64) break;
         try {
-          const vertexUrl = `https://aiplatform.googleapis.com/v1/projects/rendair-competitor/locations/global/publishers/google/models/${m}:generateContent`;
+          const vertexUrl = geminiImageEndpoint(transport, m);
           const userParts = [];
           inputImagesList.forEach((img, idx) => {
             let tag = `[Image ${idx + 1}]:`;
@@ -6095,10 +6099,7 @@ ${canvasSpec}${inpaintingSpec}`;
           const res = await fetch2(vertexUrl, {
             method: "POST",
             signal: controller.signal,
-            headers: {
-              "Authorization": `Bearer ${token2}`,
-              "Content-Type": "application/json"
-            },
+            headers: geminiImageHeaders(transport),
             body: JSON.stringify({
               contents: [{
                 role: "user",
@@ -6124,7 +6125,7 @@ ${canvasSpec}${inpaintingSpec}`;
         }
       }
     }
-    if (!base64 && !hasInputImage) {
+    if (!base64 && !hasInputImage && transport.kind === "vertex") {
       const imagenModels = [
         "imagen-3.0-generate-002",
         "imagen-3.0-fast-generate-001",
@@ -6137,10 +6138,7 @@ ${canvasSpec}${inpaintingSpec}`;
           const instancePayload = { prompt: finalPrompt };
           const res = await fetch2(imagenUrl, {
             method: "POST",
-            headers: {
-              "Authorization": `Bearer ${token}`,
-              "Content-Type": "application/json"
-            },
+            headers: { Authorization: `Bearer ${transport.token}`, "Content-Type": "application/json" },
             body: JSON.stringify({
               instances: [instancePayload],
               parameters: {
@@ -6167,7 +6165,7 @@ ${canvasSpec}${inpaintingSpec}`;
       if (!targetModel2.startsWith("gemini-")) {
         targetModel2 = "gemini-3.1-flash-image";
       }
-      const vertexUrl = `https://aiplatform.googleapis.com/v1/projects/rendair-competitor/locations/global/publishers/google/models/${targetModel2}:generateContent`;
+      const vertexUrl = geminiImageEndpoint(transport, targetModel2);
       const userParts = [];
       inputImagesList.forEach((img, idx) => {
         const tag = img.label ? `[REFERENCE IMAGE ${idx + 1} (${img.label})]:` : `[REFERENCE IMAGE ${idx + 1}]:`;
@@ -6182,10 +6180,7 @@ ${canvasSpec}${inpaintingSpec}`;
       userParts.push({ text: finalPrompt });
       const res = await fetch2(vertexUrl, {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
+        headers: geminiImageHeaders(transport),
         body: JSON.stringify({
           contents: [{ role: "user", parts: userParts }],
           generationConfig: {
@@ -6196,7 +6191,7 @@ ${canvasSpec}${inpaintingSpec}`;
       });
       if (!res.ok) {
         const errText = await res.text();
-        throw new Error(`Vertex AI API returned status ${res.status}: ${errText}`);
+        throw new Error(`${transport.kind === "vertex" ? "Vertex AI" : "Gemini"} API returned status ${res.status}: ${errText}`);
       }
       const data = await res.json();
       const imagePart = data?.candidates?.flatMap((candidate) => candidate.content?.parts || []).find((part) => part.inlineData?.data);
@@ -6268,12 +6263,14 @@ async function runAsyncJob(jobId) {
     console.log(`[AI-Render Job ${jobId}] State: generating`);
     job.logs?.push(`Contacting provider adapters and launching ${variants} parallel api calls...`);
     await persist();
-    const isMock = !getVertexAuth8();
+    const transport = await resolveImageTransport();
+    if (transport) {
+      job.logs?.push(`Image generation transport: ${transport.kind === "vertex" ? "Vertex AI (render service account)" : "Gemini API key fallback"}.`);
+    }
     const results = await Promise.all(
-      Array.from({ length: variants }).map((_, idx) => generateVariant(job, workflow, idx, isMock))
+      Array.from({ length: variants }).map((_, idx) => generateVariant(job, workflow, idx, transport))
     );
-    const anyUsedFallback = results.some((r) => r.usedFallbackMock);
-    const usedFallbackMock = isMock || anyUsedFallback;
+    const usedFallbackMock = results.some((r) => r.usedFallbackMock);
     job.status = "postprocessing";
     console.log(`[AI-Render Job ${jobId}] State: postprocessing`);
     job.logs?.push("Finalizing assets, saving private rendering references.");
@@ -6296,7 +6293,7 @@ async function runAsyncJob(jobId) {
         signedUrl = `${baseVideo}#t=0,${duration}`;
       } else if (outputType === "3d") {
         signedUrl = "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/Box/GLTF-Binary/Box.glb";
-      } else if (isMock || res.usedFallbackMock) {
+      } else if (res.usedFallbackMock) {
         const sourceImage = job.options?.assets?.source_image || job.options?.assets?.image;
         if (sourceImage && workflow.slug !== "render-to-moodboard") {
           signedUrl = sourceImage;
@@ -6308,7 +6305,7 @@ async function runAsyncJob(jobId) {
           ];
           signedUrl = MOODBOARD_MOCKS[index % MOODBOARD_MOCKS.length];
         } else {
-          signedUrl = MOCK_ARCH_IMAGES[index % MOCK_ARCH_IMAGES.length];
+          throw new Error(`${workflow.name} requires a source image, but none was supplied.`);
         }
       }
       return {
@@ -6342,13 +6339,11 @@ async function runAsyncJob(jobId) {
 }
 var warmAiRenderVertexAuth = async () => {
   const startedAt = Date.now();
-  const client = await getVertexClient8();
-  if (!client) {
-    return { ready: false, isMock: true, warmupMs: 0 };
+  const transport = await resolveImageTransport();
+  if (!transport) {
+    return { ready: false, transport: "none", warmupMs: Date.now() - startedAt };
   }
-  const tokenResponse = await client.getAccessToken();
-  if (!tokenResponse?.token) throw new Error("Failed to warm the Google Cloud access token.");
-  return { ready: true, warmupMs: Date.now() - startedAt };
+  return { ready: true, transport: transport.kind, warmupMs: Date.now() - startedAt };
 };
 var routeAiRenderApiRequest = async (request, response) => {
   const url = request.url || "";

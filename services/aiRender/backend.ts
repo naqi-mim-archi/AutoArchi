@@ -42,6 +42,40 @@ const getVertexClient = () => {
   return cachedVertexClientPromise;
 };
 
+// Image generation runs over whichever credential is configured. The render service account
+// reaches the models through Vertex in the rendair-competitor project; without it we fall
+// back to the same Gemini image models on the public API using GEMINI_API_KEY, which the
+// Gemini proxy already relies on. When neither exists the job fails — it must never quietly
+// substitute a stock photograph and report success.
+export type ImageTransport =
+  | { kind: 'vertex'; token: string }
+  | { kind: 'api-key'; apiKey: string };
+
+export const resolveImageTransport = async (): Promise<ImageTransport | null> => {
+  const clientPromise = getVertexClient();
+  if (clientPromise) {
+    try {
+      const token = (await (await clientPromise).getAccessToken())?.token;
+      if (token) return { kind: 'vertex', token };
+    } catch (error: any) {
+      console.warn(`[AI-Render] Vertex render credentials failed to authenticate: ${error?.message || error}`);
+    }
+  }
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (apiKey) return { kind: 'api-key', apiKey };
+  return null;
+};
+
+const geminiImageEndpoint = (transport: ImageTransport, model: string) =>
+  transport.kind === 'vertex'
+    ? `https://aiplatform.googleapis.com/v1/projects/rendair-competitor/locations/global/publishers/google/models/${model}:generateContent`
+    : `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(transport.apiKey)}`;
+
+const geminiImageHeaders = (transport: ImageTransport): Record<string, string> =>
+  transport.kind === 'vertex'
+    ? { Authorization: `Bearer ${transport.token}`, 'Content-Type': 'application/json' }
+    : { 'Content-Type': 'application/json' };
+
 // Normalize provider errors
 export function normalizeError(err: any): string {
   const msg = err?.message || String(err);
@@ -94,12 +128,6 @@ async function scheduleBackgroundJob(jobId: string) {
   }
 }
 
-const MOCK_ARCH_IMAGES = [
-  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80', // Contemporary villa
-  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80', // Modern kitchen/dining
-  'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80', // Penthouse living room
-  'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=80'  // Luxury bathroom
-];
 
 const MOCK_ARCH_VIDEOS = [
   'https://assets.mixkit.co/videos/preview/mixkit-modern-apartment-interior-design-with-creative-lighting-43093-large.mp4',
@@ -108,8 +136,11 @@ const MOCK_ARCH_VIDEOS = [
   'https://assets.mixkit.co/videos/preview/mixkit-living-room-with-modern-furniture-and-large-windows-41574-large.mp4'
 ];
 
-async function generateVariant(job: Job, workflow: Workflow, index: number, isMock: boolean): Promise<{ base64: string; usedFallbackMock: boolean }> {
-  if (isMock || workflow.provider === 'local_adjustment' || workflow.provider === 'gemini_analysis') {
+async function generateVariant(job: Job, workflow: Workflow, index: number, transport: ImageTransport | null): Promise<{ base64: string; usedFallbackMock: boolean }> {
+  // These two providers do not generate an image at all — local_adjustment is applied on the
+  // client and gemini_analysis produces a moodboard — so they keep returning the placeholder
+  // that the output mapping below replaces with the source image or a moodboard reference.
+  if (workflow.provider === 'local_adjustment' || workflow.provider === 'gemini_analysis') {
     const delay = job.model.includes('pro') ? 2500 : 1200;
     await new Promise(r => setTimeout(r, delay));
     return {
@@ -118,16 +149,16 @@ async function generateVariant(job: Job, workflow: Workflow, index: number, isMo
     };
   }
 
+  if (!transport) {
+    throw new Error('No image generation credentials are configured. Set GOOGLE_VERTEX_RENDER_SA_KEY_JSON, or GEMINI_API_KEY as a fallback.');
+  }
+
   try {
     // Map non-gemini model identifiers (e.g. flux-1, stable-diffusion-xl) to Vertex AI image generator
     let targetModel = job.model;
     if (!targetModel.startsWith('gemini-')) {
       targetModel = 'gemini-3.1-flash-image';
     }
-
-    const client = await getVertexClient();
-    const tokenResponse = await client?.getAccessToken();
-    const token = tokenResponse?.token;
 
     // Extract reference image(s) if supplied in job options or assets
     interface ParsedImage {
@@ -237,14 +268,12 @@ async function generateVariant(job: Job, workflow: Workflow, index: number, isMo
       }
       
       const multimodalModels = Array.from(new Set([targetModel, 'gemini-3.1-flash-image', 'gemini-3-pro-image']));
-      const client = await getVertexClient();
-      const token = await client?.getAccessToken().then(r => r.token);
 
       for (const m of multimodalModels) {
         if (base64) break;
         try {
-          const vertexUrl = `https://aiplatform.googleapis.com/v1/projects/rendair-competitor/locations/global/publishers/google/models/${m}:generateContent`;
-          
+          const vertexUrl = geminiImageEndpoint(transport, m);
+
           const userParts: any[] = [];
           inputImagesList.forEach((img, idx) => {
             let tag = `[Image ${idx + 1}]:`;
@@ -285,10 +314,7 @@ async function generateVariant(job: Job, workflow: Workflow, index: number, isMo
           const res = await fetch(vertexUrl, {
             method: 'POST',
             signal: controller.signal,
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
+            headers: geminiImageHeaders(transport),
             body: JSON.stringify({
               contents: [{
                 role: 'user',
@@ -318,8 +344,9 @@ async function generateVariant(job: Job, workflow: Workflow, index: number, isMo
       }
     }
 
-    // 2. Try Imagen 3 native image generator (for text-to-image or secondary generator)
-    if (!base64 && !hasInputImage) {
+    // 2. Try Imagen 3 native image generator (for text-to-image or secondary generator).
+    // Imagen is only reachable through Vertex, so it is skipped on the API-key fallback.
+    if (!base64 && !hasInputImage && transport.kind === 'vertex') {
       const imagenModels = [
         'imagen-3.0-generate-002',
         'imagen-3.0-fast-generate-001',
@@ -332,10 +359,7 @@ async function generateVariant(job: Job, workflow: Workflow, index: number, isMo
           const instancePayload: any = { prompt: finalPrompt };
           const res = await fetch(imagenUrl, {
             method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
+            headers: { Authorization: `Bearer ${transport.token}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
               instances: [instancePayload],
               parameters: {
@@ -365,7 +389,7 @@ async function generateVariant(job: Job, workflow: Workflow, index: number, isMo
       if (!targetModel.startsWith('gemini-')) {
         targetModel = 'gemini-3.1-flash-image';
       }
-      const vertexUrl = `https://aiplatform.googleapis.com/v1/projects/rendair-competitor/locations/global/publishers/google/models/${targetModel}:generateContent`;
+      const vertexUrl = geminiImageEndpoint(transport, targetModel);
       const userParts: any[] = [];
       inputImagesList.forEach((img, idx) => {
         const tag = img.label ? `[REFERENCE IMAGE ${idx + 1} (${img.label})]:` : `[REFERENCE IMAGE ${idx + 1}]:`;
@@ -381,10 +405,7 @@ async function generateVariant(job: Job, workflow: Workflow, index: number, isMo
 
       const res = await fetch(vertexUrl, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
+        headers: geminiImageHeaders(transport),
         body: JSON.stringify({
           contents: [{ role: 'user', parts: userParts }],
           generationConfig: {
@@ -396,7 +417,7 @@ async function generateVariant(job: Job, workflow: Workflow, index: number, isMo
 
       if (!res.ok) {
         const errText = await res.text();
-        throw new Error(`Vertex AI API returned status ${res.status}: ${errText}`);
+        throw new Error(`${transport.kind === 'vertex' ? 'Vertex AI' : 'Gemini'} API returned status ${res.status}: ${errText}`);
       }
 
       const data = await res.json();
@@ -485,15 +506,17 @@ async function runAsyncJob(jobId: string) {
     job.logs?.push(`Contacting provider adapters and launching ${variants} parallel api calls...`);
     await persist();
 
-    const isMock = !getVertexAuth();
-    
+    const transport = await resolveImageTransport();
+    if (transport) {
+      job.logs?.push(`Image generation transport: ${transport.kind === 'vertex' ? 'Vertex AI (render service account)' : 'Gemini API key fallback'}.`);
+    }
+
     // Launch all variant calls in parallel!
     const results = await Promise.all(
-      Array.from({ length: variants }).map((_, idx) => generateVariant(job, workflow, idx, isMock))
+      Array.from({ length: variants }).map((_, idx) => generateVariant(job, workflow, idx, transport))
     );
 
-    const anyUsedFallback = results.some(r => r.usedFallbackMock);
-    const usedFallbackMock = isMock || anyUsedFallback;
+    const usedFallbackMock = results.some(r => r.usedFallbackMock);
 
     // 4. Postprocessing
     job.status = 'postprocessing';
@@ -521,7 +544,7 @@ async function runAsyncJob(jobId: string) {
         signedUrl = `${baseVideo}#t=0,${duration}`;
       } else if (outputType === '3d') {
         signedUrl = 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/Box/GLTF-Binary/Box.glb';
-      } else if (isMock || res.usedFallbackMock) {
+      } else if (res.usedFallbackMock) {
         const sourceImage = job.options?.assets?.source_image || job.options?.assets?.image;
         if (sourceImage && workflow.slug !== 'render-to-moodboard') {
           signedUrl = sourceImage;
@@ -533,7 +556,9 @@ async function runAsyncJob(jobId: string) {
           ];
           signedUrl = MOODBOARD_MOCKS[index % MOODBOARD_MOCKS.length];
         } else {
-          signedUrl = MOCK_ARCH_IMAGES[index % MOCK_ARCH_IMAGES.length];
+          // local_adjustment applies an edit to an image the caller supplies; with no source
+          // image there is nothing to return, and a stock photograph would misrepresent it.
+          throw new Error(`${workflow.name} requires a source image, but none was supplied.`);
         }
       }
       return {
@@ -573,13 +598,12 @@ async function runAsyncJob(jobId: string) {
 
 export const warmAiRenderVertexAuth = async () => {
   const startedAt = Date.now();
-  const client = await getVertexClient();
-  if (!client) {
-    return { ready: false, isMock: true, warmupMs: 0 };
+  const transport = await resolveImageTransport();
+  if (!transport) {
+    // No credentials at all: report it instead of implying a working mock renderer.
+    return { ready: false, transport: 'none', warmupMs: Date.now() - startedAt };
   }
-  const tokenResponse = await client.getAccessToken();
-  if (!tokenResponse?.token) throw new Error('Failed to warm the Google Cloud access token.');
-  return { ready: true, warmupMs: Date.now() - startedAt };
+  return { ready: true, transport: transport.kind, warmupMs: Date.now() - startedAt };
 };
 
 export const routeAiRenderApiRequest = async (
