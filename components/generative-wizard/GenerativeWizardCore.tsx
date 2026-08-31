@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect, useMemo, useCallback, useLayoutEffect } from 'react';
-import { X, Sparkles, ArrowRight, Check, RefreshCw, Loader2, Wand2, MessageSquare, Send, Edit3, User, Bot, Upload, Image as ImageIcon, Copy, ScanLine, Globe, Zap, Settings2, ChevronDown, Plus, Minus, Trash2, AlertTriangle, Download } from 'lucide-react';
+import { X, Sparkles, ArrowRight, Check, RefreshCw, Loader2, Wand2, MessageSquare, Send, Edit3, User, Bot, Upload, Image as ImageIcon, Copy, ScanLine, Globe, Zap, Settings2, ChevronDown, Plus, Minus, Trash2, AlertTriangle, Download, Maximize2 } from 'lucide-react';
 import { Project, ArchElement, Point, EditorState, UnitSystem } from '../../types';
 import Canvas from '../Canvas';
 import { formatDimension, parseDimension } from '../../App';
@@ -1467,6 +1467,8 @@ const GenerativeWizard: React.FC<GenerativeWizardProps> = ({
   const [autoScanGeneratedImage, setAutoScanGeneratedImage] = useState<string | null>(null);
   const [showAutoScanGeneratedImage, setShowAutoScanGeneratedImage] = useState(false);
   const [autoPlanImageVisibility, setAutoPlanImageVisibility] = useState<Record<Text4hComparisonKey, boolean>>({ master: false, local: false });
+  const [autoPlanEnlargedKey, setAutoPlanEnlargedKey] = useState<Text4hComparisonKey | null>(null);
+  const [autoPlanEnlargedViewport, setAutoPlanEnlargedViewport] = useState<{ width: number; height: number } | null>(null);
   const [showImageToJsonLogs, setShowImageToJsonLogs] = useState(false);
   const [text4hMasterThinkingLevel, setText4hMasterThinkingLevel] = useState<Text4hMasterThinkingLevel>('minimal');
   const [text4hComparisonContext, setText4hComparisonContext] = useState<{
@@ -3972,18 +3974,20 @@ STRICT GENERATION RULES:
     };
   };
 
-  const renderText4gComparisonPreview = (key: Text4gComparisonKey) => {
+  // Shared by the comparison card and the enlarged pop-up so both draw the identical plan.
+  const buildText4gComparisonPreviewModel = (
+    key: Text4gComparisonKey,
+    // The enlarged pop-up passes its measured box so the plan is fitted to the larger
+    // viewport instead of staying at the comparison card's zoom.
+    viewport?: { width: number; height: number },
+  ) => {
     const comparisonResults = isText4jMode ? text4jComparisonResults : isText4hMode ? text4hComparisonResults : text4gComparisonResults;
-    const selectedComparison = isText4jMode ? selectedText4jComparison : isText4hMode ? selectedText4hComparison : selectedText4gComparison;
-    const setSelectedComparison = isText4jMode ? setSelectedText4jComparison : isText4hMode ? setSelectedText4hComparison : setSelectedText4gComparison;
-    const comparisonCanvasRefs = isText4jMode ? text4jComparisonCanvasRefs : isText4hMode ? text4hComparisonCanvasRefs : text4gComparisonCanvasRefs;
     const result = comparisonResults?.[key];
     if (!result) return null;
-    const selected = selectedComparison === key;
     const counts = summarizeText4gResult(result.data);
     const projectForResult = result.data ? buildText4gComparisonProject(result.data) : null;
     const editorStateForResult = projectForResult
-      ? buildText4gComparisonEditorState(projectForResult.elements)
+      ? buildText4gComparisonEditorState(projectForResult.elements, viewport?.width, viewport?.height)
       : null;
     const rasterPixelBounds = result.data?.walls?.reduce<{
       minX: number;
@@ -4018,6 +4022,92 @@ STRICT GENERATION RULES:
           worldReferenceBounds: rasterWorldBounds,
         }
       : null;
+    return { result, counts, projectForResult, editorStateForResult, autoPlanRasterRegistration };
+  };
+
+  // Enlarged pop-up of a single AutoPlan variant. It draws the same Canvas the card does,
+  // just given the whole dialog, and keeps the existing image-underlay toggle available.
+  const renderAutoPlanEnlargedPreview = () => {
+    if (!isAutoPlanGenerationMode || !autoPlanEnlargedKey) return null;
+    const previewModel = buildText4gComparisonPreviewModel(autoPlanEnlargedKey, autoPlanEnlargedViewport || undefined);
+    if (!previewModel?.projectForResult || !previewModel.editorStateForResult) return null;
+    const { result, projectForResult, editorStateForResult, autoPlanRasterRegistration } = previewModel;
+    const key = autoPlanEnlargedKey;
+
+    return (
+      <div
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[220] flex items-center justify-center p-3 pt-12"
+        onMouseDown={() => setAutoPlanEnlargedKey(null)}
+      >
+        <div
+          className="bg-white rounded-2xl shadow-2xl w-full max-w-[96vw] overflow-hidden flex flex-col h-[calc(100vh-4rem)] animate-in zoom-in-95 duration-200"
+          onMouseDown={event => event.stopPropagation()}
+        >
+          <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-white/95 p-3">
+            <div className="min-w-0">
+              <div className="text-[11px] font-black uppercase tracking-wider text-slate-800">{result.label}</div>
+              <div className="mt-1 text-[11px] font-bold text-slate-500">Enlarged view</div>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {autoPlanRasterRegistration && (
+                <button
+                  type="button"
+                  onClick={() => setAutoPlanImageVisibility(current => ({ ...current, [key]: !current[key] }))}
+                  className="flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-[11px] font-bold text-slate-600 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                  title="Preview generated image underlay; it will not be imported"
+                >
+                  <ImageIcon size={13} />
+                  {autoPlanImageVisibility[key] ? 'Hide Image' : 'Show Image'}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setAutoPlanEnlargedKey(null)}
+                className="h-8 w-8 shrink-0 rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:text-indigo-700 flex items-center justify-center"
+                title="Close enlarged view"
+              >
+                <X size={15} />
+              </button>
+            </div>
+          </div>
+          <div
+            ref={node => {
+              if (!node) return;
+              const box = node.getBoundingClientRect();
+              if (box.width < 1 || box.height < 1) return;
+              if (autoPlanEnlargedViewport
+                && Math.abs(autoPlanEnlargedViewport.width - box.width) < 1
+                && Math.abs(autoPlanEnlargedViewport.height - box.height) < 1) return;
+              setAutoPlanEnlargedViewport({ width: box.width, height: box.height });
+            }}
+            className="relative flex-1 bg-slate-50"
+          >
+            <Canvas
+              project={projectForResult}
+              editorState={editorStateForResult}
+              activeLevelId={PREVIEW_LEVEL_ID}
+              onElementsChange={() => {}}
+              onElementsCommit={() => {}}
+              onSelectionChange={() => {}}
+              onTransformChange={() => {}}
+              setEditorState={() => {}}
+              activeProceduralConfig={null}
+              rasterUnderlay={autoPlanImageVisibility[key] ? autoPlanRasterRegistration : null}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderText4gComparisonPreview = (key: Text4gComparisonKey) => {
+    const previewModel = buildText4gComparisonPreviewModel(key);
+    if (!previewModel) return null;
+    const { result, counts, projectForResult, editorStateForResult, autoPlanRasterRegistration } = previewModel;
+    const selectedComparison = isText4jMode ? selectedText4jComparison : isText4hMode ? selectedText4hComparison : selectedText4gComparison;
+    const setSelectedComparison = isText4jMode ? setSelectedText4jComparison : isText4hMode ? setSelectedText4hComparison : setSelectedText4gComparison;
+    const comparisonCanvasRefs = isText4jMode ? text4jComparisonCanvasRefs : isText4hMode ? text4hComparisonCanvasRefs : text4gComparisonCanvasRefs;
+    const selected = selectedComparison === key;
     const selectResult = () => {
       if (result.status !== 'done' || !result.data || (isText4jMode && key === 'master')) return;
       setSelectedComparison(key as any);
@@ -4093,6 +4183,18 @@ STRICT GENERATION RULES:
               >
                 <ImageIcon size={13} />
                 {showAutoScanGeneratedImage ? 'Show Floorplan' : 'Show Image'}
+              </button>
+            )}
+            {isAutoPlanGenerationMode && (
+              <button
+                type="button"
+                onClick={() => setAutoPlanEnlargedKey(key)}
+                disabled={result.status !== 'done' || !result.data}
+                className="flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-[11px] font-bold text-slate-600 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
+                title={`Open ${result.label} in an enlarged view`}
+              >
+                <Maximize2 size={13} />
+                Enlarge
               </button>
             )}
             {isAutoPlanGenerationMode && autoPlanRasterRegistration && (
@@ -5157,6 +5259,8 @@ STRICT GENERATION RULES:
           )}
         </div>
       </div>
+
+      {renderAutoPlanEnlargedPreview()}
     </div>
   );
 };
