@@ -51,11 +51,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setError(null);
     setIsSubmitting(true);
     try {
-      await signInWithGoogle();
+      const user = await signInWithGoogle();
+      // `null` means the popup was blocked and the page is navigating to Google's redirect
+      // flow — leave the modal in its loading state rather than flashing it closed.
+      if (!user) return;
+      setIsSubmitting(false);
       onClose();
     } catch (err: any) {
       setError(getFirebaseAuthErrorMessage(err));
-    } finally {
       setIsSubmitting(false);
     }
   };

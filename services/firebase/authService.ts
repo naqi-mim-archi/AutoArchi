@@ -2,6 +2,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   updateProfile,
@@ -12,6 +14,16 @@ import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { getFirebaseAuth, getFirebaseDb } from './firebaseConfig';
 
 const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+// Browsers (and privacy extensions) routinely block the Google sign-in popup. When that
+// happens there is nothing the user can fix in the app, so fall back to the full-page
+// redirect flow, which no popup blocker can stop.
+const POPUP_FALLBACK_CODES = new Set([
+  'auth/popup-blocked',
+  'auth/operation-not-supported-in-this-environment',
+  'auth/web-storage-unsupported',
+]);
 
 const upsertUserProfile = async (user: User) => {
   const db = getFirebaseDb();
@@ -44,9 +56,29 @@ export const signInWithEmail = async (email: string, password: string): Promise<
   return credential.user;
 };
 
-export const signInWithGoogle = async (): Promise<User> => {
+/**
+ * Returns the signed-in user, or `null` when the popup was blocked and the browser is
+ * being sent to Google's redirect flow instead — in that case the page navigates away and
+ * `completeGoogleRedirectSignIn` finishes the job when it comes back.
+ */
+export const signInWithGoogle = async (): Promise<User | null> => {
   const auth = getFirebaseAuth();
-  const credential = await signInWithPopup(auth, googleProvider);
+  try {
+    const credential = await signInWithPopup(auth, googleProvider);
+    await upsertUserProfile(credential.user);
+    return credential.user;
+  } catch (error: any) {
+    if (!POPUP_FALLBACK_CODES.has(String(error?.code || ''))) throw error;
+    await signInWithRedirect(auth, googleProvider);
+    return null;
+  }
+};
+
+/** Call once on app start so a redirect sign-in that just returned gets its profile row. */
+export const completeGoogleRedirectSignIn = async (): Promise<User | null> => {
+  const auth = getFirebaseAuth();
+  const credential = await getRedirectResult(auth);
+  if (!credential) return null;
   await upsertUserProfile(credential.user);
   return credential.user;
 };
@@ -75,7 +107,14 @@ export const getFirebaseAuthErrorMessage = (error: any): string => {
     case 'auth/invalid-credential':
       return 'Incorrect email or password.';
     case 'auth/popup-closed-by-user':
+    case 'auth/cancelled-popup-request':
       return 'Sign-in was cancelled.';
+    case 'auth/popup-blocked':
+      return 'Your browser blocked the Google sign-in window. Allow popups for this site, or try again to continue in the same tab.';
+    case 'auth/unauthorized-domain':
+      return 'This domain is not authorised for Google sign-in yet. Add it under Firebase Console → Authentication → Settings → Authorized domains.';
+    case 'auth/network-request-failed':
+      return 'Network error — check your connection and try again.';
     case 'auth/too-many-requests':
       return 'Too many attempts — please wait a moment and try again.';
     default:

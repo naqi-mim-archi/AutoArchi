@@ -25,7 +25,7 @@ import { SiteMapPanel } from './components/SiteMapPanel';
 import { SiteImportWizard } from './components/SiteImportWizard';
 import { AuthModal } from './components/AuthModal';
 import { ProjectsPanel } from './components/ProjectsPanel';
-import { watchAuthState, signOut as firebaseSignOut } from './services/firebase/authService';
+import { watchAuthState, signOut as firebaseSignOut, completeGoogleRedirectSignIn } from './services/firebase/authService';
 import { isFirebaseConfigured } from './services/firebase/firebaseConfig';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { RevitImportWizard } from './components/RevitImportWizard';
@@ -756,6 +756,8 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (!isFirebaseConfigured) return;
+    // Finishes a Google sign-in that fell back to the redirect flow because the popup was blocked.
+    completeGoogleRedirectSignIn().catch(err => console.warn('Google redirect sign-in failed:', err));
     const unsubscribe = watchAuthState(setCurrentUser);
     return unsubscribe;
   }, []);
