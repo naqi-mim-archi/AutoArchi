@@ -3989,40 +3989,14 @@ STRICT GENERATION RULES:
     const editorStateForResult = projectForResult
       ? buildText4gComparisonEditorState(projectForResult.elements, viewport?.width, viewport?.height)
       : null;
-    const rasterPixelBounds = result.data?.walls?.reduce<{
-      minX: number;
-      minY: number;
-      maxX: number;
-      maxY: number;
-    } | null>((bounds, wall) => {
-      const pixels = wall.evidence?.pixelBounds;
-      if (!pixels) return bounds;
-      return {
-        minX: Math.min(bounds?.minX ?? Infinity, pixels.x0),
-        minY: Math.min(bounds?.minY ?? Infinity, pixels.y0),
-        maxX: Math.max(bounds?.maxX ?? -Infinity, pixels.x1),
-        maxY: Math.max(bounds?.maxY ?? -Infinity, pixels.y1),
-      };
-    }, null);
-    const rasterWorldBounds = projectForResult
-      ? measureElements(projectForResult.elements.filter(element => element.type === 'wall'), true, true)
+    // Show Image swaps the pane over to the generated raster, the way AutoScan's does.
+    // It previously drew the raster as a 25%-opacity underlay registered from wall pixel
+    // bounds, which ghosted the image behind the plan's own labels instead of showing it,
+    // and stayed hidden entirely whenever those bounds were missing.
+    const autoPlanGeneratedImage = isAutoPlanGenerationMode
+      ? result.data?.sourceImageBase64 || null
       : null;
-    const autoPlanRasterRegistration = isAutoPlanGenerationMode
-      && result.data?.sourceImageBase64
-      && rasterPixelBounds
-      && rasterWorldBounds
-      && rasterPixelBounds.maxX > rasterPixelBounds.minX
-      && rasterPixelBounds.maxY > rasterPixelBounds.minY
-      && rasterWorldBounds.w > 0
-      && rasterWorldBounds.h > 0
-      ? {
-          imageUrl: result.data.sourceImageBase64,
-          opacity: 0.25,
-          pixelReferenceBounds: rasterPixelBounds,
-          worldReferenceBounds: rasterWorldBounds,
-        }
-      : null;
-    return { result, counts, projectForResult, editorStateForResult, autoPlanRasterRegistration };
+    return { result, counts, projectForResult, editorStateForResult, autoPlanGeneratedImage };
   };
 
   // Enlarged pop-up of a single AutoPlan variant. It draws the same Canvas the card does,
@@ -4031,7 +4005,7 @@ STRICT GENERATION RULES:
     if (!isAutoPlanGenerationMode || !autoPlanEnlargedKey) return null;
     const previewModel = buildText4gComparisonPreviewModel(autoPlanEnlargedKey, autoPlanEnlargedViewport || undefined);
     if (!previewModel?.projectForResult || !previewModel.editorStateForResult) return null;
-    const { result, projectForResult, editorStateForResult, autoPlanRasterRegistration } = previewModel;
+    const { result, projectForResult, editorStateForResult, autoPlanGeneratedImage } = previewModel;
     const key = autoPlanEnlargedKey;
 
     return (
@@ -4049,12 +4023,12 @@ STRICT GENERATION RULES:
               <div className="mt-1 text-[11px] font-bold text-slate-500">Enlarged view</div>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
-              {autoPlanRasterRegistration && (
+              {autoPlanGeneratedImage && (
                 <button
                   type="button"
                   onClick={() => setAutoPlanImageVisibility(current => ({ ...current, [key]: !current[key] }))}
                   className="flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-[11px] font-bold text-slate-600 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-                  title="Preview generated image underlay; it will not be imported"
+                  title="Preview the generated image; it will not be imported"
                 >
                   <ImageIcon size={13} />
                   {autoPlanImageVisibility[key] ? 'Hide Image' : 'Show Image'}
@@ -4082,18 +4056,28 @@ STRICT GENERATION RULES:
             }}
             className="relative flex-1 bg-slate-50"
           >
-            <Canvas
-              project={projectForResult}
-              editorState={editorStateForResult}
-              activeLevelId={PREVIEW_LEVEL_ID}
-              onElementsChange={() => {}}
-              onElementsCommit={() => {}}
-              onSelectionChange={() => {}}
-              onTransformChange={() => {}}
-              setEditorState={() => {}}
-              activeProceduralConfig={null}
-              rasterUnderlay={autoPlanImageVisibility[key] ? autoPlanRasterRegistration : null}
-            />
+            {autoPlanImageVisibility[key] && autoPlanGeneratedImage ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-white p-4">
+                <img
+                  src={autoPlanGeneratedImage}
+                  alt={`${result.label} generated image`}
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
+            ) : (
+              <Canvas
+                project={projectForResult}
+                editorState={editorStateForResult}
+                activeLevelId={PREVIEW_LEVEL_ID}
+                onElementsChange={() => {}}
+                onElementsCommit={() => {}}
+                onSelectionChange={() => {}}
+                onTransformChange={() => {}}
+                setEditorState={() => {}}
+                activeProceduralConfig={null}
+                rasterUnderlay={null}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -4103,7 +4087,7 @@ STRICT GENERATION RULES:
   const renderText4gComparisonPreview = (key: Text4gComparisonKey) => {
     const previewModel = buildText4gComparisonPreviewModel(key);
     if (!previewModel) return null;
-    const { result, counts, projectForResult, editorStateForResult, autoPlanRasterRegistration } = previewModel;
+    const { result, counts, projectForResult, editorStateForResult, autoPlanGeneratedImage } = previewModel;
     const selectedComparison = isText4jMode ? selectedText4jComparison : isText4hMode ? selectedText4hComparison : selectedText4gComparison;
     const setSelectedComparison = isText4jMode ? setSelectedText4jComparison : isText4hMode ? setSelectedText4hComparison : setSelectedText4gComparison;
     const comparisonCanvasRefs = isText4jMode ? text4jComparisonCanvasRefs : isText4hMode ? text4hComparisonCanvasRefs : text4gComparisonCanvasRefs;
@@ -4197,12 +4181,12 @@ STRICT GENERATION RULES:
                 Enlarge
               </button>
             )}
-            {isAutoPlanGenerationMode && autoPlanRasterRegistration && (
+            {isAutoPlanGenerationMode && autoPlanGeneratedImage && (
               <button
                 type="button"
                 onClick={() => setAutoPlanImageVisibility(current => ({ ...current, [key]: !current[key] }))}
                 className="flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-[11px] font-bold text-slate-600 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-                title="Preview generated image underlay; it will not be imported"
+                title="Preview the generated image; it will not be imported"
               >
                 <ImageIcon size={13} />
                 {autoPlanImageVisibility[key] ? 'Hide Image' : 'Show Image'}
@@ -4223,7 +4207,15 @@ STRICT GENERATION RULES:
           ref={node => { comparisonCanvasRefs.current[key] = node; }}
           className="relative min-h-[360px] flex-1 bg-slate-50"
         >
-          {isAutoScanFlashMode && key === 'master' && showAutoScanGeneratedImage && autoScanGeneratedImage ? (
+          {isAutoPlanGenerationMode && autoPlanImageVisibility[key] && autoPlanGeneratedImage ? (
+            <div className="absolute inset-0 flex items-center justify-center bg-white p-4">
+              <img
+                src={autoPlanGeneratedImage}
+                alt={`${result.label} generated image`}
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
+          ) : isAutoScanFlashMode && key === 'master' && showAutoScanGeneratedImage && autoScanGeneratedImage ? (
             <div className="absolute inset-0 flex items-center justify-center bg-white p-4">
               <img
                 src={autoScanGeneratedImage}
@@ -4242,7 +4234,7 @@ STRICT GENERATION RULES:
               onTransformChange={() => {}}
               setEditorState={() => {}}
               activeProceduralConfig={null}
-              rasterUnderlay={autoPlanImageVisibility[key] ? autoPlanRasterRegistration : null}
+              rasterUnderlay={null}
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
