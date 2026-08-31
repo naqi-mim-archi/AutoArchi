@@ -15,8 +15,21 @@ export function getVertexCredentialsPath(envVarName: string): string | null {
   const raw = process.env[envVarName];
   if (!raw) return null;
 
+  // Pasting the key into a shell or a dashboard field often carries the surrounding quotes
+  // into the stored value. GoogleAuth then reads the file and JSON.parse fails with
+  // `Unexpected token ''', "'{"type":""... is not valid JSON`, which surfaces as an opaque
+  // 500 on every Vertex-backed route. A service-account key is always a JSON object, so a
+  // leading/trailing quote can only be packaging.
+  const trimmed = raw.trim();
+  const unquoted = trimmed.length > 1
+    && (trimmed.startsWith("'") || trimmed.startsWith('"'))
+    && trimmed.endsWith(trimmed[0])
+    && !trimmed.startsWith('{')
+    ? trimmed.slice(1, -1)
+    : trimmed;
+
   const keyPath = path.join(os.tmpdir(), `${envVarName}.json`);
-  fs.writeFileSync(keyPath, raw, { mode: 0o600 });
+  fs.writeFileSync(keyPath, unquoted, { mode: 0o600 });
   materializedPaths.set(envVarName, keyPath);
   return keyPath;
 }

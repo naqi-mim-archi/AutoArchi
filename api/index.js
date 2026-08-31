@@ -1619,8 +1619,10 @@ function getVertexCredentialsPath(envVarName) {
   if (existing && fs.existsSync(existing)) return existing;
   const raw = process.env[envVarName];
   if (!raw) return null;
+  const trimmed = raw.trim();
+  const unquoted = trimmed.length > 1 && (trimmed.startsWith("'") || trimmed.startsWith('"')) && trimmed.endsWith(trimmed[0]) && !trimmed.startsWith("{") ? trimmed.slice(1, -1) : trimmed;
   const keyPath = path.join(os.tmpdir(), `${envVarName}.json`);
-  fs.writeFileSync(keyPath, raw, { mode: 384 });
+  fs.writeFileSync(keyPath, unquoted, { mode: 384 });
   materializedPaths.set(envVarName, keyPath);
   return keyPath;
 }
@@ -7004,8 +7006,8 @@ var getAutoPlanStatus = async () => {
   }
 };
 
-// services/autoPlan/backend/text4jAutoPlanAdapter.ts
-var buildImagePrompt = (boundary, brief) => {
+// services/autoPlan/autoPlanText4jGeometry.ts
+var buildAutoPlanImagePrompt = (boundary, brief) => {
   const BASE_PROMPT = `A professional 2D architectural floor plan rendered on a clean, solid white background. High-contrast minimalist style. All structural exterior walls are exactly 9 inches thick and filled with a solid, pure black color. All interior partition walls are exactly 4.5 inches thick and also filled with solid black. No wall shading, no textures, and no patterns. Doors are drawn as clean single-line arcs showing swing direction. Windows are represented by simple parallel lines within the black walls. Crisp, highly legible sans-serif black text labels each room with its name. No furniture layout, no flooring textures, and no color fills outside of the black walls.`;
   const roomList = brief.rooms.map((r) => `${r.count}x ${r.type}${r.required ? "" : " (optional)"}`).join(", ");
   const adjacency = brief.adjacencyRules.map((r) => `${r.spaceA} ${r.relationship} ${r.spaceB}`).join("; ");
@@ -7067,7 +7069,7 @@ var findNearestWall = (point, walls) => {
   }
   return best ? { wall: best.wall, t: best.t } : null;
 };
-var generatedDataToAutoPlanPayload = (data, boundary, brief) => {
+var generatedDataToAutoPlanPayload = (data, boundary, brief, metadataOverrides = {}) => {
   const walls = (data.walls || []).filter((w) => Array.isArray(w.p1) && Array.isArray(w.p2)).map((w, i) => ({
     id: `wall-${i}`,
     start: { x: w.p1[0], y: w.p1[1] },
@@ -7130,9 +7132,20 @@ var generatedDataToAutoPlanPayload = (data, boundary, brief) => {
     modelWeightsPath: "",
     sourcePrototypePath: "",
     createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-    inferenceStage: "text4j-vertex-adapter"
+    inferenceStage: "text4j-vertex-adapter",
+    ...metadataOverrides
   };
   return { boundary, brief, nodes, walls, openings, rooms, metadata };
+};
+
+// services/autoPlan/backend/text4jAutoPlanAdapter.ts
+var generateAutoPlanFloorplanImage = async (boundary, brief) => {
+  const prompt = buildAutoPlanImagePrompt(boundary, brief);
+  const imageResult = await generateText4jFloorplanImage(prompt);
+  if (!imageResult.imageBytes) {
+    throw new Error("Text 4.0 J did not return a floorplan image.");
+  }
+  return { imageBytes: imageResult.imageBytes, prompt, generationMs: imageResult.generationMs };
 };
 var runText4jAutoPlanInference = async (request) => {
   const { boundary, normalizedBrief } = request;
@@ -7141,11 +7154,7 @@ var runText4jAutoPlanInference = async (request) => {
   }
   const logs = [];
   logs.push({ level: "info", message: "Generating floorplan image via Text 4.0 J (Vertex AI)." });
-  const imagePrompt = buildImagePrompt(boundary, normalizedBrief);
-  const imageResult = await generateText4jFloorplanImage(imagePrompt);
-  if (!imageResult.imageBytes) {
-    throw new Error("Text 4.0 J did not return a floorplan image.");
-  }
+  const imageResult = await generateAutoPlanFloorplanImage(boundary, normalizedBrief);
   logs.push({ level: "info", message: "Extracting structured geometry from the generated floorplan image." });
   const geometryPrompt = buildText4jMasterFloorplanPrompt(
     void 0,
@@ -7188,7 +7197,8 @@ var routeAutoPlanApiRequest = async (request, response) => {
     });
     return true;
   }
-  if (request.method !== "POST" || !url.startsWith("/api/auto-plan/generate")) {
+  const isImageRequest = url.startsWith("/api/auto-plan/image");
+  if (request.method !== "POST" || !(isImageRequest || url.startsWith("/api/auto-plan/generate"))) {
     response.status(404).json({ error: "Unknown Auto Plan endpoint." });
     return true;
   }
@@ -7204,6 +7214,16 @@ var routeAutoPlanApiRequest = async (request, response) => {
       return true;
     }
     const normalizedBrief = parseAutoPlanBrief(body.briefInput, body.boundary);
+    if (isImageRequest) {
+      const image = await generateAutoPlanFloorplanImage(body.boundary, normalizedBrief);
+      response.json({
+        imageBase64: `data:image/jpeg;base64,${image.imageBytes}`,
+        brief: normalizedBrief,
+        prompt: image.prompt,
+        generationMs: image.generationMs
+      });
+      return true;
+    }
     console.info("[Auto Plan] Normalized brief", {
       residentialType: normalizedBrief.residentialType,
       rooms: normalizedBrief.rooms.map((room) => `${room.type}:${room.count}`).join(", "),

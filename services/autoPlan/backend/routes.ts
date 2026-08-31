@@ -3,7 +3,7 @@ import { parseAutoPlanBrief } from '../autoPlanParser';
 import { AutoPlanInferenceRequest } from '../autoPlanTypes';
 import { validateAutoPlanBoundary } from '../autoPlanValidation';
 import { getAutoPlanResolvedPaths, getAutoPlanStatus } from './runAutoPlanInference';
-import { runText4jAutoPlanInference } from './text4jAutoPlanAdapter';
+import { generateAutoPlanFloorplanImage, runText4jAutoPlanInference } from './text4jAutoPlanAdapter';
 
 interface ApiRequest {
   method?: string;
@@ -39,7 +39,8 @@ export const routeAutoPlanApiRequest = async (
     return true;
   }
 
-  if (request.method !== 'POST' || !url.startsWith('/api/auto-plan/generate')) {
+  const isImageRequest = url.startsWith('/api/auto-plan/image');
+  if (request.method !== 'POST' || !(isImageRequest || url.startsWith('/api/auto-plan/generate'))) {
     response.status(404).json({ error: 'Unknown Auto Plan endpoint.' });
     return true;
   }
@@ -58,6 +59,20 @@ export const routeAutoPlanApiRequest = async (
     }
 
     const normalizedBrief = parseAutoPlanBrief(body.briefInput, body.boundary);
+
+    // The browser pipeline needs only the generated raster plus the normalized brief; it
+    // runs Roboflow and the local native JSON extractor itself so both can work from the
+    // same image side by side.
+    if (isImageRequest) {
+      const image = await generateAutoPlanFloorplanImage(body.boundary, normalizedBrief);
+      response.json({
+        imageBase64: `data:image/jpeg;base64,${image.imageBytes}`,
+        brief: normalizedBrief,
+        prompt: image.prompt,
+        generationMs: image.generationMs,
+      });
+      return true;
+    }
     console.info('[Auto Plan] Normalized brief', {
       residentialType: normalizedBrief.residentialType,
       rooms: normalizedBrief.rooms.map(room => `${room.type}:${room.count}`).join(', '),
